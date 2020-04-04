@@ -1,0 +1,13 @@
+name: rastreador-covid-19-costa-rica
+title: rastreador-covid-19-costa-rica
+username:
+account: grupodabia
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2058481
+bundleId: 2969881
+url: https://grupodabia.shinyapps.io/rastreador-covid-19-costa-rica/
+when: 1586041958.91595
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: corredor-de-secuencia.R|generador-de-mapas.R
