@@ -13,8 +13,8 @@ library(jsonlite)
 library(purrr)
 library(shinyscroll)
 
-cr <- read.csv("https://raw.githubusercontent.com/DabiaCenter/Covid19_CostaRica/master/covid19_cantones_cr.csv")
-
+cr_caso_limpio <- readRDS("datos/cr_caso_limpio.RDS")
+cr_caso_provincia <- readRDS("datos/cr_caso_provincia.RDS")
 
 
 # Define server logic required to draw a histogram
@@ -29,33 +29,13 @@ shinyServer(function(input, output, session) {
                         x$properties$name <- x$properties$NPROVINCIA 
                         return(x)})
                 
-                cr_pr <- cr
-                
-                cr_pr$Provincia <- as.character(cr_pr$Provincia)
-                
-                cr_pr <- cr_pr %>%
-                    filter(Canton != "DESCONOCIDO") %>%
-                    select(-2) %>%
-                    group_by(Provincia) %>%
-                    tidyr::gather("Fecha",  "Confirmados", -1) %>%
-                    group_by(Provincia, Fecha) %>%
-                    summarise(Total = sum(Confirmados))
-                
-                cr_pr$Fecha <- sub("X","",cr_pr$Fecha)
-                
-                cr_pr <- cr_pr %>% 
-                    separate(col = Fecha, c("Dia", "Mes", "Año")) %>%
-                    unite(Dia,Mes,Año, col = "Fecha", sep = "-")
-                
-                cr_pr$Fecha <- as.Date(cr_pr$Fecha, format = "%d-%m-%Y")
-                
-                cr_pr %>%
-                    group_by(Fecha) %>%
-                    e_charts(Provincia, timeline = TRUE) %>%
+                cr_caso_provincia %>%
+                    group_by(fecha) %>%
+                    e_charts(provincia, timeline = TRUE) %>%
                     e_map_register("cr_provincia", json) %>%
-                    e_map(Total, map = "cr_provincia", name = "Confirmados") %>%
+                    e_map(total, map = "cr_provincia", name = "Confirmados") %>%
                     e_visual_map(min = 0, 
-                                 max = max(cr_pr$Total),
+                                 max = max(cr_caso_provincia$total),
                                  inRange = list(color = c('yellow','orange', 'orangered', 'red')),
                                  show = FALSE) %>%
                     e_tooltip() %>%
@@ -63,10 +43,10 @@ shinyServer(function(input, output, session) {
                                     playInterval = 1000)
                 })
             
-            url_to_geojson <- function(canton){
-                canton <- tolower(canton)
-                canton <- ifelse(canton == "san jose", "sanjose", canton)
-                paste0("mapas-json/", canton, ".geojson")
+            url_to_geojson <- function(x){
+                x <- tolower(x)
+                x <- ifelse(x == "san jose", "sanjose", x)
+                paste0("mapas-json/", x, ".geojson")
                 }
             
             output$canton <- echarts4r::renderEcharts4r({
@@ -80,31 +60,16 @@ shinyServer(function(input, output, session) {
                 
                 geojson <- url_to_geojson(selected) %>%
                     jsonlite::read_json()
-                
-                cr_cn <- cr %>% 
-                    filter(Provincia == selected) %>%
-                    group_by(Canton) %>%
-                    select(-1) %>%
-                    tidyr::gather("Fecha",  "Confirmados", -1) %>%
-                    group_by(Fecha)
-                
-                cr_cn$Fecha <- sub("X","",cr_cn$Fecha)
         
-                cr_cn <- cr_cn %>% 
-                    separate(col = Fecha, c("Dia", "Mes", "Año")) %>%
-                    unite(Dia,Mes,Año, col = "Fecha", sep = "-")
-        
-                cr_cn$Fecha <- as.Date(cr_cn$Fecha, format = "%d-%m-%Y")
-        
-                cr_cn %>%
-                    group_by(Fecha) %>%
-                    e_charts(Canton, timeline = TRUE) %>%
+                cr_caso_limpio %>%
+                    filter(provincia == selected) %>%
+                    group_by(fecha) %>%
+                    e_charts(canton, timeline = TRUE) %>%
                     e_map_register("cr_canton", geojson) %>%
-                    e_map(Confirmados, map = "cr_canton", name = "Confirmados") %>%
+                    e_map(total, map = "cr_canton", name = "Confirmados") %>%
                     e_visual_map(min = 0, 
-                                 max = max(cr_cn$Confirmados),
-                                 inRange = list(color = c('lightskyblue', 'yellow', 'orangered', 'red')),
-                                 show = FALSE) %>%
+                                 max = max(cr_caso_limpio$total),
+                                 inRange = list(color = c('lightskyblue', 'yellow', 'orangered', 'red'))) %>%
                     e_tooltip() %>%
                     e_timeline_opts(axis_type = "category",
                                     playInterval = 1000) %>%
