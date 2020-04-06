@@ -157,6 +157,18 @@ shinyUI(
             title = "Tabla de resumen",
             id = "tabla_resumen",
             tableOutput("indicadores")
+          ),
+          f7Card(
+            title = "Modelo de crecimiento exponencial",
+            id = "modelo_exponencial",
+            echarts4rOutput("modelo_log_lin", height = "70vh")
+          ),
+          f7Card(
+            title = "Estimación de casos de los próximos 8 días",
+            id = "tabla_exp",
+            f7Slide(
+              tableOutput("estimacion_log_lin")
+            )
           )
         )
       )

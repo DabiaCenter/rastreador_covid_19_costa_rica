@@ -12,10 +12,73 @@ library(waiter)
 library(jsonlite)
 library(purrr)
 library(shinyscroll)
+library(deSolve)
+library(lubridate)
 
 cr_caso_limpio <- readRDS("datos/cr_caso_limpio.RDS")
 cr_caso_provincia <- readRDS("datos/cr_caso_provincia.RDS")
 
+#Codigo Alexis
+#iniciar fecha
+comienzo <- "6/03/2020"
+#hacerle transformacion logaritmica a los datos
+datos<-read_excel("datos/datos.xlsx")
+datos<-datos%>%
+    mutate(casosdia=casosdia+1,Fecha = dmy(comienzo) + days(dias - 1))%>%
+    mutate(logcasos=log(casosdia))
+
+#funcion exponencial
+estimacion<-function(x0,b,t){
+    return(x0*(b^t))
+}
+#crear modelo
+modelo_log<-lm(logcasos~dias,data=datos)
+
+#transfromar variables
+x0<-exp(modelo_log$coefficients[[1]])
+b<-exp(modelo_log$coefficients[[2]])
+
+
+#datos ajustados
+datos<-datos%>%
+    select(dias,casosdia,Fecha)%>%
+    mutate(ajuste=estimacion(x0=x0,b=b,t=(1:length(casosdia))))%>%
+    mutate(casosdia=casosdia-1)
+
+
+#prediciones para los proximos 8 dias
+prediccion<-round(estimacion(x0=x0,b=b,t=(nrow(datos):(nrow(datos)+6))),0)
+
+prediccion<-data.frame(
+    "Casos_estimados"=prediccion,
+    time=(nrow(datos):(nrow(datos)+6))
+)
+
+prediccion <- prediccion %>%
+    mutate(
+        Fecha = dmy(comienzo) + days(time - 1)
+    )%>%
+    select(
+        Fecha,Casos_estimados
+    )
+
+colnames(prediccion)<-c("Fecha","Casos Estimados")
+colnames(datos)<-c("dias","Casos","Fecha","ajuste")
+
+prediccion$Fecha<-as.character(prediccion$Fecha)
+
+ajuste_prediccion<-data.frame(
+    time=(1:(nrow(datos)+6)),
+    casos=round(estimacion(x0=x0,b=b,t=(1:(nrow(datos)+6))))
+    
+)
+
+colnames(ajuste_prediccion)<- c("time","Estimado")
+
+#agregar fechas
+ajuste_prediccion<-ajuste_prediccion%>%
+    mutate(Fecha = dmy(comienzo) + days(time - 1))
+#
 # Codigo debe ir aparte en otro Script
 
 SIR <- function(time, state, parameters) {
@@ -32,6 +95,20 @@ cr_caso_general <- readRDS("datos/casos_general.RDS")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
+    
+            output$modelo_log_lin<-renderEcharts4r({
+                ajuste_prediccion %>%
+                    e_charts(Fecha)%>%
+                    e_line(Estimado) %>%
+                    e_title("Modelo de crecimiento exponencial","casos") %>%
+                    e_tooltip()%>%
+                    e_data(datos)%>%
+                    e_scatter(Casos)%>%
+                    e_x_axis(name="Fecha")
+                
+            })
+            output$estimacion_log_lin<-renderTable({prediccion
+            })
             
             output$map <- renderEcharts4r({
                 
