@@ -11,7 +11,9 @@ library(waiter)
 library(jsonlite)
 library(purrr)
 library(shinyscroll)
-
+library(remotes)
+library(deSolve)
+library(lubridate)
 
 
 # La siguiente seccion es una modificación del codigo de John Coene que 
@@ -92,10 +94,48 @@ shinyUI(
         animated = TRUE,
         id = "tabs",
         f7Tab(
+          tabName = "General",
+          icon = f7Icon("calendar", old = FALSE),
+          active = TRUE,
+          swipeable = TRUE,
+          f7Card(
+            title = "Infectados por COVID-19: acumulado y por dia",
+            echarts4rOutput("graf_infectados", height = "60vh")
+          ),
+          f7Card(
+            title = "Cantidad de casos descartados",
+            echarts4rOutput("graf_descartados", height = "60vh")
+          ),
+          f7Card(
+            title = "Cantidad de recuperados y fallecidos",
+            echarts4rOutput("graf_estados", height = "60vh")
+          ),
+          f7Card(
+            title = "Infectados según género",
+            echarts4rOutput("graf_genero", height = "60vh")
+          ),
+          f7Card(
+            title = "Infectados según nacionalidad",
+            echarts4rOutput("graf_nacionalidad", height = "60vh")
+          ),
+          f7Card(
+            title = "Infectados según grupo etario",
+            echarts4rOutput("graf_edades", height = "60vh")
+          ),
+          f7Card(
+            title = "Calendario: cantidad de infecciones por dia",
+            echarts4rOutput("graf_calendario", height = "60vh")
+          ),
+          f7Card(
+            title = "Top 10 de infectados por cantones",
+            echarts4rOutput("graf_top10", height = "60vh")
+          )
+        ),
+        f7Tab(
           tabName = "Inicio",
           use_shinyscroll(),
           icon = f7Icon("email", old = FALSE),
-          active = TRUE,
+          active = FALSE,
           swipeable = TRUE,
           f7Card(
             title = "Casos Confirmados por provincia en el tiempo",
