@@ -71,6 +71,9 @@ shinyUI(
       skin = "md",
       theme = "light"
     ),
+    manifest = "www/manifest.json",
+    icon = "www/icon-128x128.png",
+    favicon = "www/favicon.ico",
     f7TabLayout(
       navbar = f7Navbar(
         title = "Rastreador COVID-19 de Costa Rica",
@@ -78,7 +81,7 @@ shinyUI(
         shadow = TRUE,
         left_panel = TRUE,
         right_panel = FALSE
-        ),
+      ),
       panels = tagList(
         f7Panel(
           title = "Acerca de",
@@ -88,8 +91,8 @@ shinyUI(
           p("Registro del estado del COVID-19 en Costa Rica, elaborado por el equipo de DABIA"),
           f7Link(label = "Autor", src = "https://grupodabia.com", external = TRUE),
           f7Link(label = "GitHub", src = "https://github.com/DabiaCenter", external = TRUE)
-          )
-        ),
+        )
+      ),
       f7Tabs(
         animated = TRUE,
         id = "tabs",
@@ -108,13 +111,13 @@ shinyUI(
           f7Card(
             title = "Casos Confirmados por provincia en el tiempo",
             echarts4rOutput("map", height = "70vh")
-            ),
+          ),
           f7Card(
             title = "Cantón",
             id = "Cantones",
             echarts4rOutput("canton", height = "70vh")
-            )
-          ),
+          )
+        ),
         f7Tab(
           tabName = "Modelaje",
           icon = f7Icon("email", old = FALSE),
