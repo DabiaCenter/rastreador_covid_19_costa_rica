@@ -20,7 +20,7 @@ cr_caso_provincia <- readRDS("datos/cr_caso_provincia.RDS")
 cr_caso_general <- readRDS("datos/casos_general.RDS")
 pred <- readRDS("datos/prediccion.RDS")
 ajuste <- readRDS("datos/ajuste_prediccion.RDS")
-mapa_p <- readRDS("datos/mapa_provincia.RDS")
+mapa_pr <- readRDS("datos/mapa_provincia.RDS")
 
 ## Codigo debe ir aparte en otro Script
 
@@ -51,7 +51,7 @@ shinyServer(function(input, output) {
             
             output$map <- renderEcharts4r({
                 
-                mapa_p
+                mapa_pr
                 
                 })
             
