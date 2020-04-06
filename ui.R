@@ -17,6 +17,50 @@ library(shinyscroll)
 # La siguiente seccion es una modificación del codigo de John Coene que 
 # puede ser consultado en el siguiente link: https://github.com/JohnCoene/coronavirus
 
+# Codigo debe ir aparte en otro Script
+
+SIR <- function(time, state, parameters) {
+  par <- as.list(c(state, parameters))
+  with(par, {
+    dS <- -beta * I * S / N
+    dI <- beta * I * S / N - gamma * I
+    dR <- gamma * I
+    list(c(dS, dI, dR))
+  })
+}
+
+
+cr_caso_general <- readRDS("datos/casos_general.RDS")
+
+N <- 4900000
+init <- c(
+  S = N - cr_caso_general$Confirmados[1],
+  I = cr_caso_general$Confirmados[1],
+  R = 0
+)
+
+Day <- 1:(length(cr_caso_general$Confirmados))
+
+RSS <- function(parameters) {
+  names(parameters) <- c("beta", "gamma")
+  out <- ode(y = init, times = Day, func = SIR, parms = parameters)
+  fit <- out[, 3]
+  sum((cr_caso_general$Confirmados - fit)^2)
+}
+
+
+Opt <- optim(c(0.5, 0.5),
+             RSS,
+             method = "L-BFGS-B",
+             lower = c(0, 0),
+             upper = c(1, 1)
+)
+
+Opt_par <- setNames(Opt$par, c("beta", "gamma"))
+Opt_par
+beta_val = Opt$par[1]
+gamma_val = Opt$par[2]
+
 shinyUI(
   f7Page(
     title = "Tab Layout",
@@ -64,12 +108,50 @@ shinyUI(
             )
           ),
         f7Tab(
-          tabName = "Modelo",
+          tabName = "Modelaje",
           icon = f7Icon("email", old = FALSE),
           active = FALSE,
-          swipeable = TRUE
+          swipeable = TRUE,
+          f7Card(wellPanel(
+            fluidRow(
+              column(1, 
+                     sliderInput(
+                       inputId = "beta",
+                       label = "Tasa de contagios",
+                       value = beta_val, min = 0, max = 1
+                     )
+              )
+            ),
+            fluidRow(
+              column(1, 
+                     sliderInput(
+                       inputId = "gamma",
+                       label = "Tasa de recuperación",
+                       value = gamma_val, min = 0, max = 1
+                     )
+              )
+            ),
+            fluidRow(
+              column(1, 
+                     sliderInput(
+                       inputId = "poblacion",
+                       label = "Cantidad de habitantes(Default habitantes de Costa Rica)",
+                       value = 4900000, min = 0, max = 10000000, step = 100000)
+              )
+            ))
+          ),
+          f7Card(
+            title = "Modelo SIR del Covid-19 para Costa Rica",
+            id = "modelo_SIR",
+            echarts4rOutput("SIR", height = "70vh")
+          ),
+          f7Card(
+            title = "Tabla de resumen",
+            id = "tabla_resumen",
+            tableOutput("indicadores")
           )
         )
       )
     )
   )
+)

@@ -16,6 +16,19 @@ library(shinyscroll)
 cr_caso_limpio <- readRDS("datos/cr_caso_limpio.RDS")
 cr_caso_provincia <- readRDS("datos/cr_caso_provincia.RDS")
 
+# Codigo debe ir aparte en otro Script
+
+SIR <- function(time, state, parameters) {
+    par <- as.list(c(state, parameters))
+    with(par, {
+        dS <- -beta * I * S / N
+        dI <- beta * I * S / N - gamma * I
+        dR <- gamma * I
+        list(c(dS, dI, dR))
+    })
+}
+
+cr_caso_general <- readRDS("datos/casos_general.RDS")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
@@ -76,5 +89,71 @@ shinyServer(function(input, output, session) {
                     e_title(selected, top = 10, left = 10) %>% 
                     e_show_loading(color = "#000000", mask_color = '#ffffff')
                 })
+            
+            #Parte del server de modelaje del Modelo SIR
+            valores <- reactive({
+                req(input$poblacion, input$beta, input$gamma)
+                ode(y = c(S = input$poblacion, I = 1, R = 0),
+                    times = seq(1:200),
+                    func = SIR,
+                    parms = c(beta = input$beta, gamma = input$gamma, N = input$poblacion))
+            })
+            
+            
+            output$SIR <- renderEcharts4r({
+                val <- as.data.frame(valores())
+                
+                comienzo <- "6/03/2020"
+                val <- val %>%
+                    mutate(
+                        Fecha = dmy(comienzo) + days(time - 1)
+                    )
+                
+                val %>%
+                    e_charts(Fecha)%>%
+                    e_x_axis(name = "Fecha") %>%
+                    e_y_axis(name = "Población") %>%
+                    e_text_style(fontSize = 18) %>%
+                    e_line(S) %>%
+                    e_line(I) %>%
+                    e_line(R) %>%
+                    e_title("Modelo SIR del Covid-19 para Costa Rica") %>%
+                    e_tooltip() 
+            })
+            
+            
+            output$indicadores <- renderTable({
+                val1 <- as.data.frame(valores())
+                
+                comienzo <- "6/03/2020"
+                val1 <- val1 %>%
+                    mutate(
+                        Fecha = dmy(comienzo) + days(time - 1)
+                    )%>%
+                    select(Fecha, I)
+                
+                ro = input$beta/input$gamma
+                infectados = ifelse(
+                    (1 -(1/ro)) < 0, 
+                    "No aplica", 
+                    ((1 -(1/ro))*100))
+                pico = ifelse(
+                    (1 -(1/ro)) < 0, 
+                    "No aplica", 
+                    as.character(val1[max(val1$I) == val1$I,]$Fecha))
+                muertes = ifelse(
+                    (1 -(1/ro)) < 0,
+                    "No aplica",
+                    max(val1$I) * max(cr_caso_general$Fallecidos)/cr_caso_general$Confirmados[nrow(cr_caso_general)])
+                df <- data.frame("Tasa de contacto" = ro, 
+                                 "Porcentaje de la poblacion a infectarse (%)" = infectados,
+                                 "Pico de la pandemia" = pico,
+                                 "Posible cantidad de muertes" = round(muertes,))
+                colnames(df) <- c("Tasa de contacto", 
+                                  "Porcentaje de la población a infectarse (%)", 
+                                  "Pico de la pandemia", 
+                                  "Posible cantidad de muertes")
+                df
+            })
     })
         
