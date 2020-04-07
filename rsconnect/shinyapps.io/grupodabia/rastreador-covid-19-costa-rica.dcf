@@ -5,9 +5,9 @@ account: grupodabia
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2058481
-bundleId: 2980182
+bundleId: 2980259
 url: https://grupodabia.shinyapps.io/rastreador-covid-19-costa-rica/
-when: 1586256164.85407
+when: 1586257593.70414
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: corredor-de-secuencia.R|generador-de-mapas.R|recuperador_de_datos.R

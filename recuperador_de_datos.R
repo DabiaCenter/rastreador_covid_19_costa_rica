@@ -97,7 +97,7 @@ graf_infectados <- temp_casos_general %>%
   e_mark_point("Confirmados", data = list(type = "max")) %>%
   e_mark_point("Casos", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
-  e_title("Infectados por COVID-19", "Cantidad") %>% 
+  e_title("Infectados por COVID-19") %>% 
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
   e_y_axis(name = "Cantidad") %>%
   e_text_style(fontSize = 12)
