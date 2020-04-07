@@ -100,7 +100,51 @@ shinyUI(
           tabName = "General",
           icon = f7Icon("calendar", old = FALSE),
           active = TRUE,
-          swipeable = TRUE
+          swipeable = TRUE,
+          f7Card(
+            title = "Casos confirmados y descartados por COVID-19",
+            id = "confirm_descart",
+            f7Swiper(
+              id = "swiper1",
+              centered = TRUE, 
+              spaceBetween = 60,
+              slidePerView = 1,
+              f7Slide(
+                echarts4rOutput("graf_infectados", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_descartados", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_calendario", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_top10", height = "60vh")
+              )
+            )
+          ),
+          f7Card(
+            title = "Agrupamiento de los infectados por COVID-19",
+            id = "agrupaciones",
+            f7Swiper(
+              id = "swiper2",
+              centered = TRUE, 
+              spaceBetween = 60,
+              slidePerView = 1,
+              f7Slide(
+                echarts4rOutput("graf_estados", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_genero", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_nacionalidad", height = "60vh")
+              ),
+              f7Slide(
+                echarts4rOutput("graf_edades", height = "60vh")
+              )
+            )
+          )
         ),
         f7Tab(
           tabName = "Inicio",
