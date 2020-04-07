@@ -10,11 +10,11 @@ library(shinyMobile)
 library(waiter)
 library(jsonlite)
 library(purrr)
-library(shinyscroll)
 library(remotes)
 library(deSolve)
 library(lubridate)
-
+library(countup)
+library(shinyWidgets)
 
 # La siguiente seccion es una modificación del codigo de John Coene que 
 # puede ser consultado en el siguiente link: https://github.com/JohnCoene/coronavirus
@@ -63,13 +63,21 @@ Opt_par
 beta_val = Opt$par[1]
 gamma_val = Opt$par[2]
 
+loader <- tagList(
+  waiter::spin_half(),
+  br(),
+  h3("Cargando datos...")
+)
+
 shinyUI(
   f7Page(
-    title = "Tab Layout",
+    use_waiter(include_js = FALSE),
+    title = "COVID-19 CR",
     dark_mode = FALSE,
     init = f7Init(
       skin = "md",
-      theme = "light"
+      theme = "light",
+      color = "blue"
     ),
     manifest = "www/manifest.json",
     icon = "www/icon-128x128.png",
@@ -98,9 +106,60 @@ shinyUI(
         id = "tabs",
         f7Tab(
           tabName = "General",
-          icon = f7Icon("calendar", old = FALSE),
+          icon = f7Icon("info_circle", old = FALSE),
           active = TRUE,
-          swipeable = TRUE,
+          swipeable = FALSE,
+          waiter_show_on_load(html = loader),
+          f7Card(
+            f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 140, width = 140)) %>%
+              f7Align("center"),
+            h2("Estado Covid-19 Costa Rica", class = "center", align = "center"),
+            p("Datos generales", class = "center", align = "center")
+          ),
+          f7Row(
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("conf")),
+                  br(),
+                  span(tags$small("Confirmados"))
+                )
+              )
+            ),
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("fall")),
+                  br(),
+                  span(tags$small("Fallecidos"))
+                )
+              )
+            )
+          ),
+          f7Row(
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("desc")),
+                  br(),
+                  span(tags$small("Descartados"))
+                )
+              )
+            ),
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("recu")),
+                  br(),
+                  tags$span(tags$small("Recuperados"))
+                )
+               )
+              )
+            ),
           f7Card(
             title = "Casos confirmados y descartados por COVID-19",
             id = "confirm_descart",
@@ -110,16 +169,13 @@ shinyUI(
               spaceBetween = 60,
               slidePerView = 1,
               f7Slide(
-                echarts4rOutput("graf_infectados", height = "60vh")
+                echarts4rOutput("graf_infectados", height = "50vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_descartados", height = "60vh")
+                echarts4rOutput("graf_descartados", height = "50vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_calendario", height = "60vh")
-              ),
-              f7Slide(
-                echarts4rOutput("graf_top10", height = "60vh")
+                echarts4rOutput("graf_top10", height = "50vh")
               )
             )
           ),
@@ -147,26 +203,36 @@ shinyUI(
           )
         ),
         f7Tab(
-          tabName = "Inicio",
-          use_shinyscroll(),
-          icon = f7Icon("email", old = FALSE),
+          tabName = "Mapa",
+          icon = f7Icon("map", old = FALSE),
           active = FALSE,
-          swipeable = TRUE,
+          swipeable = FALSE,
+          waiter_hide_on_render("map"),
           f7Card(
             title = "Casos Confirmados por provincia en el tiempo",
-            echarts4rOutput("map", height = "70vh")
+            echarts4rOutput("map", height = "80vh")
+          ),
+          f7SmartSelect(
+            inputId = "smartsel",
+            label = "Seleccione una provincia:",
+            selected = "ALAJUELA",
+            choices = c("ALAJUELA", "SAN JOSE", "CARTAGO",
+                        "GUANACASTE", "LIMON", "PUNTARENAS",
+                        "HEREDIA"),
+            openIn = "popover",
+            searchbar = FALSE
           ),
           f7Card(
-            title = "Cantón",
+            title = "Casos por cantones",
             id = "Cantones",
-            echarts4rOutput("canton", height = "70vh")
+            echarts4rOutput("canton", height = "80vh")
           )
         ),
         f7Tab(
-          tabName = "Modelaje",
-          icon = f7Icon("email", old = FALSE),
+          tabName = "Modelos",
+          icon = f7Icon("waveform_path", old = FALSE),
           active = FALSE,
-          swipeable = TRUE,
+          swipeable = FALSE,
           f7Card(wellPanel(
             fluidRow(
               column(1, 
@@ -193,32 +259,32 @@ shinyUI(
                        label = "Cantidad de habitantes(Default habitantes de Costa Rica)",
                        value = 4900000, min = 0, max = 10000000, step = 100000)
               )
-            ))
+            )
+          )
           ),
           f7Card(
             title = "Modelo SIR del Covid-19 para Costa Rica",
             id = "modelo_SIR",
-            echarts4rOutput("SIR", height = "70vh")
+            echarts4rOutput("SIR", height = "65vh")
           ),
           f7Card(
             title = "Tabla de resumen",
             id = "tabla_resumen",
-            tableOutput("indicadores")
+         f7BlockHeader(h4(tableOutput("indicadores"))) %>%
+           f7Align("center")
+            
           ),
           f7Card(
             title = "Modelo de crecimiento exponencial",
-            id = "modelo_exponencial",
-            echarts4rOutput("modelo_log_lin", height = "70vh")
+            echarts4rOutput("modelo_log_lin", height = "65vh")
           ),
           f7Card(
-            title = "Estimación de casos de los próximos 8 días",
-            id = "tabla_exp",
-            f7Slide(
-              tableOutput("estimacion_log_lin")
-            )
+            title = "Predicción próximos 7 días",
+            f7BlockHeader(h4(tableOutput("estimacion_log_lin"))) %>%
+              f7Align("center")
+            ) 
           )
         )
       )
     )
   )
-)

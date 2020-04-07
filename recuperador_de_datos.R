@@ -75,7 +75,7 @@ dfnacionalidad <- data.frame(Nacionalidad = nacionalidad,
 #Codigo para obtener Recuperados y Fallecimientos
 dfestado <- data.frame(
   Estado = c("Recuperados", "Fallecidos"),
-  Infectados = c(ultima_fila$Fallecidos, ultima_fila$Recuperados)
+  Infectados = c(ultima_fila$Recuperados, ultima_fila$Fallecidos)
 ) 
 
 #Codigo para obtener infectados por grupos etarios
@@ -98,7 +98,9 @@ graf_infectados <- temp_casos_general %>%
   e_mark_point("Casos", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
   e_title("Infectados por COVID-19", "Cantidad") %>% 
-  e_x_axis(name = "Fecha") # add x axis name)
+  e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Cantidad") %>%
+  e_text_style(fontSize = 12)
 
 saveRDS(graf_infectados, file = "datos/graf_infectados.RDS")
 
@@ -113,8 +115,10 @@ graf_descartados <- temp_casos_general %>%
   ) %>%
   e_mark_point("Descartados", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
-  e_title("Casos descartados por COVID-19", "Cantidad") %>% 
-  e_x_axis(name = "Fecha") # add x axis name
+  e_title("Casos descartados por COVID-19") %>% 
+  e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Cantidad") %>%
+  e_text_style(fontSize = 12)
 
 saveRDS(graf_descartados, file = "datos/graf_descartados.RDS")
 
@@ -257,11 +261,11 @@ ajuste_prediccion <- ajuste_prediccion %>%
 ajuste_prediccion <- ajuste_prediccion %>%
   e_charts(Fecha) %>%
   e_line(Estimado) %>%
-  e_title("Modelo de crecimiento exponencial","casos") %>%
   e_tooltip() %>%
   e_data(temp_casos_general) %>%
   e_scatter(Casos) %>%
-  e_x_axis(name = "Fecha")
+  e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Casos") 
 
 ######### almacena el grafico para el output
 
@@ -284,7 +288,7 @@ prov_map <- cr_caso_provincia %>%
   e_visual_map(min = 0, 
                max = max(cr_caso_provincia$total),
                inRange = list(color = c('yellow','orange', 'orangered', 'red')),
-               show = FALSE) %>%
+               show = TRUE) %>%
   e_tooltip() %>%
   e_timeline_opts(axis_type = "category",
                   playInterval = 1000)
