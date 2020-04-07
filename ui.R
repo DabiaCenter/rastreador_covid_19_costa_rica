@@ -79,8 +79,8 @@ shinyUI(
       color = "blue"
     ),
     manifest = "www/manifest.json",
-    icon = "www/icon-128x128.png",
-    favicon = "www/favicon.ico",
+    icon = f7Icon("ant-fill", old = FALSE),
+    favicon = f7Icon("ant-fill", old = FALSE),
     f7TabLayout(
       navbar = f7Navbar(
         title = "Rastreador COVID-19 de Costa Rica",
@@ -105,10 +105,10 @@ shinyUI(
         id = "tabs",
         f7Tab(
           tabName = "General",
-          icon = f7Icon("info_circle", old = FALSE),
+          icon = f7Icon("ant", old = FALSE),
           active = TRUE,
           swipeable = FALSE,
-          #waiter_show_on_load(html = loader),
+           waiter_show_on_load(html = loader),
           f7Card(
             f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 140, width = 140)) %>%
               f7Align("center"),
@@ -208,21 +208,21 @@ shinyUI(
           icon = f7Icon("map", old = FALSE),
           active = FALSE,
           swipeable = FALSE,
-          #waiter_hide_on_render("map"),
+          waiter_hide_on_render("map"),
           f7Card(
             title = "Casos Confirmados por provincia en el tiempo",
             echarts4rOutput("map", height = "80vh")
           ),
-          #f7SmartSelect(
-            #inputId = "smartsel",
-            #label = "Seleccione una provincia:",
-            #selected = "ALAJUELA",
-            #choices = c("ALAJUELA", "SAN JOSE", "CARTAGO",
-                       # "GUANACASTE", "LIMON", "PUNTARENAS",
-                        #"HEREDIA"),
-            #openIn = "popover",
-            #searchbar = FALSE
-         # ),
+          f7SmartSelect(
+            inputId = "smartsel",
+            label = "Seleccione una provincia:",
+            selected = "ALAJUELA",
+            choices = c("ALAJUELA", "SAN JOSE", "CARTAGO",
+                        "GUANACASTE", "LIMON", "PUNTARENAS",
+                        "HEREDIA"),
+            openIn = "popover",
+            searchbar = FALSE
+          ),
           f7Card(
             title = "Casos por cantones",
             id = "Cantones",
@@ -287,7 +287,7 @@ shinyUI(
           ),
           f7Tab(
             tabName = "Período",
-            icon = f7Icon("email",old=FALSE),
+            icon = f7Icon("sort_up",old = FALSE),
             active = FALSE,
             swipeable=FALSE,
             f7Card(
