@@ -163,6 +163,7 @@ shinyUI(
           f7Card(
             title = "Casos confirmados y descartados por COVID-19",
             id = "confirm_descart",
+            footer = "Deslice hacia la izquierda para ver el contenido",
             f7Swiper(
               id = "swiper1",
               centered = TRUE, 
@@ -182,6 +183,7 @@ shinyUI(
           f7Card(
             title = "Agrupamiento de los infectados por COVID-19",
             id = "agrupaciones",
+            footer = "Deslice hacia la izquierda para ver el contenido",
             f7Swiper(
               id = "swiper2",
               centered = TRUE, 
