@@ -21,6 +21,14 @@ cr_caso_general <- readRDS("datos/casos_general.RDS")
 pred <- readRDS("datos/prediccion.RDS")
 ajuste <- readRDS("datos/ajuste_prediccion.RDS")
 mapa_pr <- readRDS("datos/mapa_provincia.RDS")
+graf_calendario <- readRDS("datos/graf_calendario.RDS")
+graf_descartados <- readRDS("datos/graf_descartados.RDS")
+graf_edades <- readRDS("datos/graf_edades.RDS")
+graf_estados <- readRDS("datos/graf_estados.RDS")
+graf_genero <- readRDS("datos/graf_genero.RDS")
+graf_infectados <- readRDS("datos/graf_infectados.RDS")
+graf_nacionalidad <- readRDS("datos/graf_nacionalidad.RDS")
+graf_top10 <- readRDS("datos/graf_top10.RDS")
 
 ## Codigo debe ir aparte en otro Script
 
@@ -36,6 +44,58 @@ SIR <- function(time, state, parameters) {
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
+    
+            #Graficos descriptivos ----------------
+            
+            output$graf_infectados <- renderEcharts4r({
+                
+                #Grafico comparativo entre infectados por dia e infectados acumulados
+                graf_infectados
+            })
+            
+            output$graf_descartados <- renderEcharts4r({
+                
+                #Grafico cantidad descartados
+                graf_descartados
+            })
+            
+            output$graf_top10 <- renderEcharts4r({
+                
+                #Grafico top 10 cantones
+                graf_top10
+            })
+            
+            output$graf_calendario <- renderEcharts4r({
+                
+                #Mapa de calor: cantidad de infecciones por dia
+                graf_calendario
+            })
+            
+            output$graf_estados <- renderEcharts4r({
+                
+                #Grafico cantidad recuperados y fallecidos
+                graf_estados
+            })
+            
+            output$graf_genero <- renderEcharts4r({
+                
+                #Grafico comparativo entre infectados por genero
+                graf_genero
+            })
+            
+            output$graf_nacionalidad <- renderEcharts4r({
+                
+                #Grafico comparativo entre infectados por nacionalidad
+                graf_nacionalidad
+            })
+            
+            output$graf_edades <- renderEcharts4r({
+                
+                #Grafico comparativo infectados adultos, adultos mayores y menores
+                graf_edades
+            })
+            
+            #Modelo loglinear ----------------
     
             output$modelo_log_lin <- renderEcharts4r({
                 

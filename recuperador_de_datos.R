@@ -59,6 +59,138 @@ names(temp_casos_general)[names(temp_casos_general) == "casos_nuevos"] <- "Casos
 
 saveRDS(temp_casos_general, file = "datos/casos_general.RDS")
 
+######### seccion "general"
+ultima_fila = tail(temp_casos_general,1)
+
+#Codigo para obtener infectados por genero
+genero <- factor(x = c("Hombres", "Mujeres"))
+dfgeneros <- data.frame(Genero = genero, 
+                        Infectados = c(ultima_fila$Hombres, ultima_fila$Mujeres)) 
+
+#Codigo para obtener infectados por genero
+nacionalidad <- factor(x = c("Extranjeros", "Costarricenses"))
+dfnacionalidad <- data.frame(Nacionalidad = nacionalidad, 
+                             Infectados = c(ultima_fila$Extranjeros, ultima_fila$Costarricenses)) 
+
+#Codigo para obtener Recuperados y Fallecimientos
+dfestado <- data.frame(
+  Estado = c("Recuperados", "Fallecidos"),
+  Infectados = c(ultima_fila$Fallecidos, ultima_fila$Recuperados)
+) 
+
+#Codigo para obtener infectados por grupos etarios
+dfedad <- data.frame(
+  Grupos = c("Adultos", "Adultos mayores", "Menores"),
+  Infectados = c(ultima_fila$Adultos, ultima_fila$Adultos.Mayores, ultima_fila$Menores)
+) 
+
+#Grafico comparativo entre infectados por dia e infectados acumulados
+graf_infectados <- temp_casos_general %>%
+  e_charts(Fecha) %>% 
+  e_line(Confirmados) %>% 
+  e_area(Casos) %>%
+  e_tooltip(
+    axisPointer = list(
+      type = "cross"
+    )
+  ) %>%
+  e_mark_point("Confirmados", data = list(type = "max")) %>%
+  e_mark_point("Casos", data = list(type = "max")) %>%
+  e_legend(right = 0) %>%
+  e_title("Infectados por COVID-19", "Cantidad") %>% 
+  e_x_axis(name = "Fecha") # add x axis name)
+
+saveRDS(graf_infectados, file = "datos/graf_infectados.RDS")
+
+#Grafico cantidad descartados
+graf_descartados <- temp_casos_general %>%
+  e_charts(Fecha) %>% 
+  e_line(Descartados) %>%
+  e_tooltip(
+    axisPointer = list(
+      type = "cross"
+    )
+  ) %>%
+  e_mark_point("Descartados", data = list(type = "max")) %>%
+  e_legend(right = 0) %>%
+  e_title("Casos descartados por COVID-19", "Cantidad") %>% 
+  e_x_axis(name = "Fecha") # add x axis name
+
+saveRDS(graf_descartados, file = "datos/graf_descartados.RDS")
+
+#Mapa de calor: cantidad de infecciones por dia
+graf_calendario <- temp_casos_general %>% 
+  e_charts(Fecha) %>% 
+  e_calendar(range = c(temp_casos_general[1,1], temp_casos_general[nrow(temp_casos_general), 1]), 
+             dayLabel = list(nameMap = c("D", "L", "K", "M", "J", "V", "S")), 
+             monthLabel = list(nameMap = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))) %>% 
+  e_heatmap(Casos, coord_system = "calendar") %>% 
+  e_visual_map(max = 32)  %>% 
+  #e_tooltip(axisPointer = list(type = "cross"))
+  e_tooltip(formatter = htmlwidgets::JS("
+              function(params){
+                return('Fecha: ' + params.value[0] + 
+                '</strong><br />Infectados: ' + params.value[1]) 
+                        }
+                  "))
+
+saveRDS(graf_calendario, file = "datos/graf_calendario.RDS")
+
+#Grafico top 10 cantones
+cr_caso_limpio$canton <- as.character(cr_caso_limpio$canton)
+
+graf_top10 <- cr_caso_limpio %>%
+  group_by(canton) %>%
+  summarize(Casos = sum(total))  %>%
+  arrange(desc(Casos)) %>%
+  head(n = 10) %>%
+  arrange(Casos) %>%
+  e_charts(canton) %>%
+  e_bar(Casos) %>%
+  e_tooltip(trigger = "item") %>%
+  e_flip_coords() %>%
+  e_legend(right = 0) %>%
+  e_title("Top 10 de casos por cantones") 
+
+saveRDS(graf_top10, file = "datos/graf_top10.RDS")
+
+#Grafico cantidad recuperados y fallecidos
+graf_estados <- dfestado %>% 
+  e_charts(Estado) %>% 
+  e_bar(Infectados) %>% 
+  e_title("Recuperados y fallecidos") %>%
+  e_legend(right = 0) %>%
+  e_flip_coords() # flip axis
+
+saveRDS(graf_estados, file = "datos/graf_estados.RDS")
+
+#Grafico comparativo entre infectados por genero
+graf_genero <- dfgeneros %>% 
+  e_charts(Genero) %>% 
+  e_pie(Infectados, radius = c("50%", "70%")) %>% 
+  e_title("Infectados según género") %>%
+  e_tooltip(axisPointer = list(type = "cross"))
+
+saveRDS(graf_genero, file = "datos/graf_genero.RDS")
+
+#Grafico comparativo entre infectados por nacionalidad
+graf_nacionalidad <- dfnacionalidad %>% 
+  e_charts(Nacionalidad) %>% 
+  e_pie(Infectados, radius = c("50%", "70%")) %>% 
+  e_title("Infectados según nacionalidad") %>%
+  e_tooltip(axisPointer = list(type = "cross")) 
+
+saveRDS(graf_nacionalidad, file = "datos/graf_nacionalidad.RDS")
+
+#Grafico comparativo infectados adultos, adultos mayores y menores
+graf_edades <- dfedad  %>% 
+  e_charts(Grupos) %>% 
+  e_pie(Infectados, radius = c("50%", "70%")) %>% 
+  e_title("Infectados según grupo etario") %>%
+  e_tooltip(axisPointer = list(type = "cross"))
+
+saveRDS(graf_edades, file = "datos/graf_edades.RDS")
+
 ######### seccion de modelo loglinear
 
 estimacion<-function(x0,b,t){
