@@ -226,15 +226,17 @@ shinyServer(function(input, output) {
     })
     
     output$pedup <- renderEcharts4r({
-      cr_caso_general %>%
-        tail(n=5)%>%
-        e_charts(Fecha) %>%
-        e_scatter(periodo_de_duplicacion,name="Período de Duplicación",symbolSize =25) %>%
-        e_tooltip(trigger="item") %>%
-        e_x_axis(name="Fecha")%>%
-        e_y_axis(name="Período Duplicación en Días")%>%
-        e_text_style(fontSize=15)
+        cr_caso_general %>%
+            tail(n=5)%>%
+            e_charts(Fecha) %>%
+            e_scatter(periodo_de_duplicacion,name="Período de Duplicación",symbolSize =25) %>%
+            e_tooltip(trigger="item") %>%
+            e_x_axis(name="Fecha", nameLocation = "center", nameGap = 40)%>%
+            e_y_axis(name="Período Duplicación en Días")%>%
+            e_text_style(fontSize=13)
     })
+    
+    
     
    
 })
