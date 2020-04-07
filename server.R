@@ -216,20 +216,13 @@ shinyServer(function(input, output) {
             "No aplica", 
             as.character(val1[max(val1$I) == val1$I,]$Fecha))
         
-        muertes = ifelse(
-            (1 -(1/ro)) < 0,
-            "No aplica",
-            max(val1$I) * max(cr_caso_general$Fallecidos)/cr_caso_general$Confirmados[nrow(cr_caso_general)])
-        
         df <- data.frame("Tasa de contacto" = ro, 
                          "Porcentaje de la poblacion a infectarse (%)" = infectados,
-                         "Pico de la pandemia" = pico,
-                         "Posible cantidad de muertes" = round(muertes,))
+                         "Pico de la pandemia" = pico)
         
         colnames(df) <- c("Tasa de contacto", 
                           "Porcentaje de la población a infectarse (%)", 
-                          "Pico de la pandemia", 
-                          "Posible cantidad de muertes")
+                          "Pico de la pandemia")
         df
     })
     

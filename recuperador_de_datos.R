@@ -3,6 +3,8 @@
 if(!require("pacman")) install.packages("pacman")
 library(tidyverse)
 library(lubridate)
+library(echarts4r)
+library(echarts4r.maps)
 
 ####### llamado a data por cantones
 
@@ -145,7 +147,7 @@ cr_caso_limpio$canton <- as.character(cr_caso_limpio$canton)
 
 graf_top10 <- cr_caso_limpio %>%
   group_by(canton) %>%
-  summarize(Casos = sum(total))  %>%
+  summarize(Casos = max(total))  %>%
   arrange(desc(Casos)) %>%
   head(n = 10) %>%
   arrange(Casos) %>%
@@ -164,7 +166,8 @@ graf_estados <- dfestado %>%
   e_bar(Infectados) %>% 
   e_title("Recuperados y fallecidos") %>%
   e_legend(right = 0) %>%
-  e_flip_coords() # flip axis
+  e_flip_coords() %>%
+  e_tooltip()# flip axis
 
 saveRDS(graf_estados, file = "datos/graf_estados.RDS")
 
