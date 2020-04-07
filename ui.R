@@ -96,7 +96,7 @@ shinyUI(
           side = "left",
           theme = "light",
           effect = "cover",
-          p("Registro del estado del COVID-19 en Costa Rica, elaborado por el equipo de DABIA"),
+          p("Registro del estado del COVID-19 en Costa Rica, elaborado por la comunidad de interés DABIA, conformada por estudiantes del Instituto Tecnológico de Costa Rica."),
           f7Link(label = "Autor", src = "https://grupodabia.com", external = TRUE),
           f7Link(label = "GitHub", src = "https://github.com/DabiaCenter", external = TRUE)
         )
