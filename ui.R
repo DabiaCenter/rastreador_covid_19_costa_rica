@@ -4,7 +4,6 @@ library(shiny)
 library(dplyr)
 library(echarts4r.maps)
 library(echarts4r)
-library(shinydashboard)
 library(tidyr)
 library(shinyMobile)
 library(waiter)
@@ -109,7 +108,7 @@ shinyUI(
           icon = f7Icon("info_circle", old = FALSE),
           active = TRUE,
           swipeable = FALSE,
-          waiter_show_on_load(html = loader),
+          #waiter_show_on_load(html = loader),
           f7Card(
             f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 140, width = 140)) %>%
               f7Align("center"),
@@ -209,21 +208,21 @@ shinyUI(
           icon = f7Icon("map", old = FALSE),
           active = FALSE,
           swipeable = FALSE,
-          waiter_hide_on_render("map"),
+          #waiter_hide_on_render("map"),
           f7Card(
             title = "Casos Confirmados por provincia en el tiempo",
             echarts4rOutput("map", height = "80vh")
           ),
-          f7SmartSelect(
-            inputId = "smartsel",
-            label = "Seleccione una provincia:",
-            selected = "ALAJUELA",
-            choices = c("ALAJUELA", "SAN JOSE", "CARTAGO",
-                        "GUANACASTE", "LIMON", "PUNTARENAS",
-                        "HEREDIA"),
-            openIn = "popover",
-            searchbar = FALSE
-          ),
+          #f7SmartSelect(
+            #inputId = "smartsel",
+            #label = "Seleccione una provincia:",
+            #selected = "ALAJUELA",
+            #choices = c("ALAJUELA", "SAN JOSE", "CARTAGO",
+                       # "GUANACASTE", "LIMON", "PUNTARENAS",
+                        #"HEREDIA"),
+            #openIn = "popover",
+            #searchbar = FALSE
+         # ),
           f7Card(
             title = "Casos por cantones",
             id = "Cantones",
@@ -285,6 +284,16 @@ shinyUI(
             f7BlockHeader(h4(tableOutput("estimacion_log_lin"))) %>%
               f7Align("center")
             ) 
+          ),
+          f7Tab(
+            tabName = "Período",
+            icon = f7Icon("email",old=FALSE),
+            active = FALSE,
+            swipeable=FALSE,
+            f7Card(
+              title = "Período de Duplicación COVID-19 en Costa Rica",
+              echarts4rOutput("pedup")
+            )
           )
         )
       )
