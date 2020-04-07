@@ -232,7 +232,7 @@ shinyServer(function(input, output) {
             e_scatter(periodo_de_duplicacion,name="Período de Duplicación",symbolSize =25) %>%
             e_tooltip(trigger="item") %>%
             e_x_axis(name="Fecha", nameLocation = "center", nameGap = 40)%>%
-            e_y_axis(name="Período Duplicación en Días")%>%
+            e_y_axis(name="Días")%>%
             e_text_style(fontSize=13)
     })
     
