@@ -129,10 +129,13 @@ graf_calendario <- temp_casos_general %>%
   e_charts(Fecha) %>% 
   e_calendar(range = c(temp_casos_general[1,1], temp_casos_general[nrow(temp_casos_general), 1]), 
              dayLabel = list(nameMap = c("D", "L", "K", "M", "J", "V", "S")), 
-             monthLabel = list(nameMap = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"))) %>% 
+             monthLabel = list(nameMap = c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
+             left = "25%",
+             width = "50%",
+             yearLabel = list(position = "right")) %>% 
   e_heatmap(Casos, coord_system = "calendar") %>% 
-  e_visual_map(max = 32)  %>% 
-  #e_tooltip(axisPointer = list(type = "cross"))
+  e_visual_map(max = 32, top = 60)  %>% 
+  e_title("Calendario: nuevos casos por día") %>%
   e_tooltip(formatter = htmlwidgets::JS("
               function(params){
                 return('Fecha: ' + params.value[0] + 

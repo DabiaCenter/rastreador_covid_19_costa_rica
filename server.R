@@ -63,9 +63,9 @@ shinyServer(function(input, output) {
         countup(max(cr_caso_general$Recuperados), duration = 7)
     })
     
+    #Grafico comparativo entre infectados por dia e infectados acumulados
     output$graf_infectados <- renderEcharts4r({
         
-        #Grafico comparativo entre infectados por dia e infectados acumulados
         graf_infectados
     })
     
@@ -73,6 +73,12 @@ shinyServer(function(input, output) {
         
         #Grafico cantidad descartados
         graf_descartados
+    })
+    
+    output$graf_calendario <- renderEcharts4r({
+        
+        #Mapa de calor: cantidad de infecciones por dia
+        graf_calendario
     })
     
     output$graf_top10 <- renderEcharts4r({
