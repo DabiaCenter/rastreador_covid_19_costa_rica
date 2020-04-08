@@ -234,7 +234,57 @@ shinyUI(
           icon = f7Icon("waveform_path", old = FALSE),
           active = FALSE,
           swipeable = FALSE,
-          f7Card(wellPanel(
+          f7Card(
+            f7Popup(
+              id = "popup1",
+              label = "Información del modelo SIR",
+              title = "Información sobre el modelo SIR",
+              p("Existen diferentes tipos de modelos epidemiológicos para modelar el comportamiento de enfermedades 
+                contagiosas, pero por factores de una fácil comprensión, además de que modela de una manera acertada
+                el comportamiento del Covid-19, se utiliza el modelo SIR."),
+              div(),
+              p("El modelo SIR, es un modelo compartimental que parte de la idea de dividir a la población en tres 
+                grupos de personas, los cuales son:"),
+              div(),
+              p(strong("Susceptibles(S):"), "el grupo de personas que se encuentra sana pero puede ser contagiada."),
+              div(),
+              p(strong("Infectados (I):"), "el grupo de personas que se encuentran infectados y contagian."),
+              div(),
+              p(strong("Recuperados (R):"), "el grupo de personas que se recupera y tiene inmunidad ante la enfermedad."),
+              div(),
+              p("Este cuenta con dos parámetros importantes como lo es la", strong("tasa de contagios"), ", la cual indica la transición
+                entre las personas susceptibles (S) y la infectadas (I), y está la", strong("tasa de recuperación"), ",la cual controla
+                la transición entre las personas infectadas (I) y la recuperadas(R). Las tasas que aparece en el modelo hecho,
+                tanto la de contagios y recuperación, muestra las tasas al día de hoy de acuerdo a los datos obtenidos del 
+                comportamiento del coronavirus en el país, sin embargo, usted puede cambiar esta tasa para ver como puede cambiar
+                el comportamiento si la tasa de contagios baja y la tasa de recuperación sube o viceversa. ¿Qué es lo que se busca?
+                El fin de los esfuerzos del gobierno y toda la población es que la curva se aplane y esto se logra buscando que la tasa
+                de contagios disminuya. Para el comportamiento del coronavirus, y de cualquier enfermedad que sea muy contagiosa, la tasa 
+                de contagios siempre va a ser mayor a la tasa de recuperación."),
+              div(),
+              p("Este modelo SIR es un modelo de ecuaciones diferenciales que es muy flexible, ya que permite observar cómo cambia el número
+                de persona susceptibles a contagiarse, las infectadas y las recuperadas, donde muestra la importancia y la gran búsqueda de lograr
+                aplanar la curva de los infectados. Además, permite tener predicciones como el previsible del", strong("pico de contagios"), ", la", 
+                strong("tasa de contacto"), "(R0) y el posible", strong("porcentaje de la población a infectarse"), ", a todo esto, lo que se quiere 
+                es disminuirlo al máximo."),
+              div(),
+              p("La tasa de contacto (R0) o también conocida como el número de reproducción es muy importante porque lo que indica es
+                el número de personas sanas o suceptibles que llegan a ser infectados por una persona que está contagiada con la enfermedad, es decir,
+                si el número de reproducción (R0) es de 2, esto quiere decir que una persona infectada está contagiando a 2 personas sanas. De acuerdo,
+                con Manuel de León, indica que lo ideal es que este número esté por debajo de 1 y a nivel mundial, este número para el Covid-19 está entre
+                1.5 y 2.5."),
+              div(),
+              p("NOTA: Todas las predicciones realizadas están basadas en modelos matemáticos y no necesariamente son los números exactos que van a haber
+                al final de esta pandemia en nuestro país, hay factores que lo modelos no toman en cuenta como la cuarentena que está realizando el país o
+                todos los esfuerzos que hace el gobierno por controlar la pandemia, de parte de DABIA esperamos que estos números terminen siendo los más
+                favorables al país y esta pandemia termine lo más pronto posible."),
+              div(),
+              p("Para más información visitar", 
+                a(href = "https://www.statsandr.com/blog/covid-19-in-belgium/", "Stats and R"), "(www.statsandr.com/blog/covid-19-in-belgium)", 
+                "y", a(href = "https://www.agenciasinc.es/Reportajes/Un-modelo-un-teorema-y-teoria-de-juegos-contra-el-coronavirus", "Un modelo, un teorema
+                               y teoría de juegos contra el coronavirus."), "(www.agenciasinc.es/Reportajes/Un-modelo-un-teorema-y-teoria-de-juegos-contra-el-coronavirus)")
+            ),
+            wellPanel(
             fluidRow(
               column(1, 
                      sliderInput(
@@ -276,6 +326,26 @@ shinyUI(
             
           ),
           f7Card(
+            f7Popup(
+              id="popup2",
+              label="Información del modelaje de crecimiento exponencial",
+              title="Observaciones generales del modelo de crecimiento exponencial",
+                p("En el periodo inicial de una pandemia los casos suelen aumentar de manera exponencial. 
+                  Para estimar los casos en un periodo definido se utiliza el factor de crecimiento (cuantas 
+                  personas infecta una persona) y el número de casos al inicio. Con el fin de estimar el factor
+                  de crecimiento y el valor inicial de los casos,que mejor representan el comportamiento de los 
+                  datos, se obtuvo el logaritmo de los datos y se realizó un modelo de regresión lineal.  Una vez 
+                  con estos valores estimados, se calculó el exponencial de cada uno, y se procedió a ajustar el 
+                  modelo de crecimiento exponencial a los datos,y a realizar una estimación para los próximos siete
+                  días. No obstante, en algún momento los casos dejan de aumentar, por lo que como se mencionó este 
+                  modelo ajusta solo al inicio del periodo de infección."),
+                div(),
+                p("Importante resaltar que los resultados obtenidos en este estudio no representan la situación real
+                  del país. Simplemente es una demostración de uno de modelos matemáticos que representan 
+                  el comportamiento de un virus como el COVID-19, esto no quiere decir que sea el mejor. Al contrario, 
+                  se incita al usuario a utilizar este modelo, e investigar sobre sobre otros modelos usados en epidemiología. "),
+                a("Referencias","https://towardsdatascience.com/modeling-exponential-growth-49a2b6f22e1f")
+            ),
             title = "Modelo de crecimiento exponencial",
             echarts4rOutput("modelo_log_lin", height = "65vh")
           ),
@@ -291,6 +361,37 @@ shinyUI(
             active = FALSE,
             swipeable=FALSE,
             f7Card(
+              f7Popup(
+                id="popup3",
+                label = "Información del Período de Duplicación",
+                title= "Información sobre el Periódo de Duplicación",
+                p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia."),
+                div(),
+                p("Los casos confirmados es una de estas informaciones en el país. Ahora bien, el número de casos positivos absolutos no es necesariamente el mejor indicador del estado actual de expansión de un brote de enfermedad, sobre todo en el caso de una infección que puede tener síntomas leves o incluso personas asintomáticas que pueden infectar a otros."),
+                p("El",strong ("período de duplicación"), "es decir, el tiempo en el cual se duplica la cifra de personas testeadas positivas por una infección, es una medida utilizada a nivel internacional para ofrecer una imagen del desarrollo de una infección en un instante determinado."),
+                div(),
+                p("Si el período de duplicación fuese de dos días con cien infectados, quiere decir que pasaría de cien infectados a doscientos en dos días. Este indicador se obtiene: período de duplicación es igual a casos activos divido entre casos nuevos."),
+                div(),
+                p("La variable de",strong("casos activos"),"es igual al número de casos confirmados del día actual menos las personas fallecidas y recuperadas del día actual. Estos casos activos son en efecto los que representan potenciales fuentes de transmisión viral.",
+                  strong("Casos nuevos"), "deriva de la resta entre los casos confirmados del día de anterior menos los casos confirmados del día actual. Se obtiene como Resultado el período de duplicación aproximado (en días).
+                "),
+                div(),
+                p("En la gráfica se muestra el período de duplicación al lado de cada barra de los últimos 5 días actualizados."),
+                div(),
+                p("Un período corto de duplicación de 4-5 días, no es lo ideal, dado que podría provocar una saturación en el sistema de salud. Significa que la enfermedad se está propagando muy rápidamente.
+                Por otro lado, si el período supera 20 a 25 días, se considera un período prolongado que representa un crecimiento más lento de aparición de casos infectados, por el hecho que en el mismo período se disminuyen los casos activos reales. Por ello, el Ministro de Salud y el Gobierno actual han insistido en “aplanar la curva”, es decir, ralentizar la tasa de crecimiento de los nuevos casos de infección para conservar la capacidad del sector de salud estable al mantener un período de duplicación prolongado e impactar de manera más sutil sobre las repercusiones económicas y sociales del país.
+                "),
+                div(),
+                p("Es importante mencionar que este indicador es meramente teórico y simplificado. No es una predicción perfecta, también por causa de ausencia de suficientes datos epidemiológicos, por el factor de incertidumbre en las personas asintomáticas que no necesariamente están testeadas y cuyo porcentaje real se desconoce. Se trata de un predictor para ofrecer una imagen aproximada de la situación actual que tienen márgenes de error."),
+                div(),
+                p("Sin embargo, como costarricenses debemos responsabilizarnos y ser conscientes que con el distanciamiento social y acatamiento de las órdenes dadas por las autoridades se puede reducir la tasa de transmisión y aumentar efectivamente el período de duplicación disminuyendo la tasa de infección en la población no infectada."),
+                div(),
+                p("Léase:"),
+                a("Nunes-Vaz, R. (2020). Visualising the doubling time of COVID-19 allows comparison of the success of containment measures. Global Biosecurity. Obtenido de https://jglobalbiosecurity.com/articles/10.31646/gbio.61/"),
+                a("Roser, M., Ritchie, H., & Ortiz, E. (2020). Coronavirus Disease (COVID-19) – Statistics and Research. Our World in Data. Obtenido de https://ourworldindata.org/coronavirus"),
+                a("Woolhouse, M. (2011, July 12). How to make predictions about future infectious disease risks. Royal Society. Obtenido de https://royalsocietypublishing.org/doi/10.1098/rstb.2010.0387"),
+                a("Wu, J. T., Leung, K., & Leung, G. M. (2020, February 29). Nowcasting and forecasting the potential domestic and. Lancet, 395, 689-695. Obtenido de https://www.thelancet.com/pdfs/journals/lancet/PIIS0140-6736(20)30260-9.pdf")
+              ), 
               title = "Período de Duplicación COVID-19 en Costa Rica",
               echarts4rOutput("pedup")
             )
