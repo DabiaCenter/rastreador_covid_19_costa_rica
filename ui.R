@@ -62,6 +62,8 @@ Opt_par
 beta_val = Opt$par[1]
 gamma_val = Opt$par[2]
 
+act <- max(cr_caso_general$Fecha)
+
 loader <- tagList(
   waiter::spin_half(),
   br(),
@@ -113,7 +115,8 @@ shinyUI(
             f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 140, width = 140)) %>%
               f7Align("center"),
             h2("Estado Covid-19 Costa Rica", class = "center", align = "center"),
-            p("Datos generales", class = "center", align = "center")
+            p("Datos generales", class = "center", align = "center"),
+            p(paste("Datos actualizados a la fecha:", act), class = "center", align = "center")
           ),
           f7Row(
             f7Col(
