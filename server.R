@@ -236,8 +236,19 @@ shinyServer(function(input, output) {
             e_text_style(fontSize=13)
     })
     
+    #Popups de la explicación de los modelos y período de duplicación
     
+    observeEvent(input$sir, {
+        f7TogglePopup(id = "popup1")
+    })
     
+    observeEvent(input$exp, {
+        f7TogglePopup(id = "popup2")
+    })
+    
+    observeEvent(input$periodo, {
+        f7TogglePopup(id = "popup3")
+    })
    
 })
         

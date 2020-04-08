@@ -235,10 +235,13 @@ shinyUI(
           active = FALSE,
           swipeable = FALSE,
           f7Card(
+            f7Button(
+              inputId = "sir", 
+              label = "Información acerca del modelo SIR"
+              ),
             f7Popup(
               id = "popup1",
-              label = "Información del modelo SIR",
-              title = "Información sobre el modelo SIR",
+              title = "Información acerca del modelo SIR",
               p("Existen diferentes tipos de modelos epidemiológicos para modelar el comportamiento de enfermedades 
                 contagiosas, pero por factores de una fácil comprensión, además de que modela de una manera acertada
                 el comportamiento del Covid-19, se utiliza el modelo SIR."),
@@ -326,9 +329,12 @@ shinyUI(
             
           ),
           f7Card(
+            f7Button(
+              inputId = "exp", 
+              label = "Información acerca del modelaje de crecimiento exponencial"
+            ),
             f7Popup(
               id="popup2",
-              label="Información del modelaje de crecimiento exponencial",
               title="Observaciones generales del modelo de crecimiento exponencial",
                 p("En el periodo inicial de una pandemia los casos suelen aumentar de manera exponencial. 
                   Para estimar los casos en un periodo definido se utiliza el factor de crecimiento (cuantas 
@@ -361,9 +367,12 @@ shinyUI(
             active = FALSE,
             swipeable=FALSE,
             f7Card(
+              f7Button(
+                inputId = "periodo", 
+                label = "Información acerca del Período de Duplicación"
+              ),
               f7Popup(
                 id="popup3",
-                label = "Información del Período de Duplicación",
                 title= "Información sobre el Periódo de Duplicación",
                 p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia."),
                 div(),
