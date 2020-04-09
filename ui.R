@@ -178,6 +178,9 @@ shinyUI(
                 echarts4rOutput("graf_descartados", height = "50vh")
               ),
               f7Slide(
+                echarts4rOutput("graf_calendario", height = "50vh")
+              ),
+              f7Slide(
                 echarts4rOutput("graf_top10", height = "50vh")
               )
             )
