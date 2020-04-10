@@ -158,7 +158,7 @@ shinyServer(function(input, output) {
                          inRange = list(color = c('yellow','orange', 'orangered', 'red'))) %>%
             e_tooltip() %>%
             e_timeline_opts(axis_type = "category",
-                            playInterval = 1000) %>%
+                            playInterval = 1000, currentIndex = length(unique(cr_caso_provincia$fecha))-1) %>%
             e_show_loading(text = "Cargando...",color = "#000000", mask_color = '#ffffff')
         
     })
