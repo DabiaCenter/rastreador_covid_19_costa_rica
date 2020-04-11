@@ -195,9 +195,6 @@ shinyUI(
               spaceBetween = 60,
               slidePerView = 1,
               f7Slide(
-                echarts4rOutput("graf_estados", height = "60vh")
-              ),
-              f7Slide(
                 echarts4rOutput("graf_genero", height = "60vh")
               ),
               f7Slide(
