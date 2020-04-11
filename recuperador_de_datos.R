@@ -88,18 +88,20 @@ dfedad <- data.frame(
 
 #Grafico comparativo entre infectados por dia e infectados acumulados
 graf_infectados <- temp_casos_general %>%
-  e_charts(Fecha) %>% 
-  e_line(Confirmados) %>% 
-  e_area(Casos) %>%
+  select(Fecha, Confirmados, Casos) %>%
+  `colnames<-`(c("Fecha", "Acumulados", "Diarios")) %>%
+  e_charts(Fecha) %>%
+  e_line(Acumulados) %>% 
+  e_area(Diarios) %>%
   e_tooltip(
     axisPointer = list(
       type = "cross"
     )
   ) %>%
-  e_mark_point("Confirmados", data = list(type = "max")) %>%
-  e_mark_point("Casos", data = list(type = "max")) %>%
+  e_mark_point("Acumulados", data = list(type = "max")) %>%
+  e_mark_point("Diarios", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
-  e_title("Infectados por COVID-19") %>% 
+  e_title("Infectados", top = 0) %>% 
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
   e_y_axis(name = "Cantidad") %>%
   e_text_style(fontSize = 12)
@@ -117,7 +119,7 @@ graf_descartados <- temp_casos_general %>%
   ) %>%
   e_mark_point("Descartados", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
-  e_title("Casos descartados por COVID-19") %>% 
+  e_title("Descartados") %>% 
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
   e_y_axis(name = "Cantidad") %>%
   e_text_style(fontSize = 12)

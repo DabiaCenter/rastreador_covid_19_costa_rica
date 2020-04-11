@@ -87,12 +87,6 @@ shinyServer(function(input, output) {
         graf_top10
     })
     
-    output$graf_estados <- renderEcharts4r({
-        
-        #Grafico cantidad recuperados y fallecidos
-        graf_estados
-    })
-    
     output$graf_genero <- renderEcharts4r({
         
         #Grafico comparativo entre infectados por genero
