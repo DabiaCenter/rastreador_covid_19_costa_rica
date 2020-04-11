@@ -1,6 +1,6 @@
 # Rastreador COVID-19 Costa Rica
 
-![LogoDabia](https://raw.githubusercontent.com/DabiaCenter/rastreador_covid_19_costa_rica/master/images/dabia.png)
+![LogoDabia](/images/dabia.png)
 
 Aplicación creada en Shiny para rastrear el comportamiento de la pandemia del coronavirus en Costa Rica donde se presentan datos, gráficos interactivos,
 mapas dinámicos con líneas de tiempo, modelo SIR y modelo de crecimiento exponencial.
