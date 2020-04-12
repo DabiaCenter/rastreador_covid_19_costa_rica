@@ -5,12 +5,15 @@ library(tidyverse)
 library(lubridate)
 library(echarts4r)
 library(echarts4r.maps)
+library(easynls)
 
-####### llamado a data por cantones
+####### Cargar/tratar datos -----------
+
+#### llamado a data por cantones
 
 tem_cr_caso_pc <- read.csv("datos/covid19_cantones_cr.csv")
 
-####### limpia fechas
+#### limpia fechas
 
 cr_caso_limpio <- tem_cr_caso_pc %>% 
   pivot_longer(-c(provincia, canton),
@@ -26,16 +29,16 @@ cr_caso_provincia <- cr_caso_limpio %>%
   summarize(total = sum(total))
 
 
-######### almacena datos
+#### almacena datos
 
 saveRDS(cr_caso_limpio, file = "datos/cr_caso_limpio.RDS")
 saveRDS(cr_caso_provincia, file = "datos/cr_caso_provincia.RDS")
 
-######## carga datos generales
+#### carga datos generales
 
 temp_casos_general <- read.csv("datos/covid19_general_cr.csv")
 
-####### modificacion datos generales
+#### modificacion datos generales
 
 temp_casos_general <- temp_casos_general %>%
   mutate(anterior = lag(Confirmados),
@@ -57,12 +60,14 @@ temp_casos_general$Fecha <- as.Date(as.character(temp_casos_general$Fecha),
 
 names(temp_casos_general)[names(temp_casos_general) == "casos_nuevos"] <- "Casos"
 
-######### almacena datos generales
+#### almacena datos generales
 
 saveRDS(temp_casos_general, file = "datos/casos_general.RDS")
 
-######### seccion "general"
+
+######### seccion "general" -----------------
 ultima_fila = tail(temp_casos_general,1)
+maximo_casos <- max(temp_casos_general$Casos)
 
 #Codigo para obtener infectados por genero
 genero <- factor(x = c("Hombres", "Mujeres"))
@@ -136,7 +141,7 @@ graf_calendario <- temp_casos_general %>%
              width = "50%",
              yearLabel = list(position = "right")) %>% 
   e_heatmap(Casos, coord_system = "calendar") %>% 
-  e_visual_map(max = 32, top = 60)  %>% 
+  e_visual_map(max = maximo_casos, top = 60)  %>% 
   e_title("Calendario: nuevos casos por día") %>%
   e_tooltip(formatter = htmlwidgets::JS("
               function(params){
@@ -203,23 +208,24 @@ graf_edades <- dfedad  %>%
 
 saveRDS(graf_edades, file = "datos/graf_edades.RDS")
 
-######### seccion de modelo loglinear
+
+######### seccion de modelo loglinear -----------------
 
 estimacion<-function(x0,b,t){
   return(x0*(b^t))
 }
 
-######## crear modelo
+#### crear modelo
 
 modelo_log <- lm(logcasos~dias,data = temp_casos_general)
 
-######## transfromar variables
+#### transfromar variables
 
 x0 <- exp(modelo_log$coefficients[[1]])
 b <- exp(modelo_log$coefficients[[2]])
 
 
-######## datos ajustados
+#### datos ajustados
 
 temp_casos_general <- temp_casos_general %>%
   mutate(ajuste = estimacion(x0 = x0,
@@ -246,11 +252,11 @@ prediccion <- prediccion %>%
     Fecha, Casos_estimados
   )
 
-colnames(prediccion)<-c("Fecha","Casos Estimados")
+colnames(prediccion)<-c("Fecha","Casos estimados")
 
 prediccion$Fecha <- as.character(prediccion$Fecha)
 
-######## almacena la tabla para el output
+#### almacena la tabla para el output
 
 saveRDS(prediccion, file = "datos/prediccion.RDS")
 
@@ -261,7 +267,7 @@ ajuste_prediccion <- data.frame(
 
 colnames(ajuste_prediccion) <- c("time","Estimado")
 
-###### agregar fechas
+#### agregar fechas
 
 ajuste_prediccion <- ajuste_prediccion %>%
   mutate(Fecha = temp_casos_general[1,"Fecha"] + days(time - 1))
@@ -275,11 +281,105 @@ ajuste_prediccion <- ajuste_prediccion %>%
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
   e_y_axis(name = "Casos") 
 
-######### almacena el grafico para el output
+#### almacena el grafico para el output
 
 saveRDS(ajuste_prediccion, file = "datos/ajuste_prediccion.RDS")
 
-######## seccion mapa
+
+######### seccion de modelo gompertz -----------------
+
+# Definir de funciones ---------------------------
+
+gompertz_mod = function(params, t) {
+  
+  (params[1] * exp(-params[2] * exp(-params[3] * (t - 1))))
+}
+
+cuando_acaba <- function(params, t, ultima_fecha) {
+  
+  i = 0
+  
+  while (TRUE) {
+    
+    model_max <- gompertz_mod(param, t)
+    finales   <- tail(model_max,2)
+    ultimo    <- round(finales[2])
+    penultimo <- round(finales[1])
+    
+    if (ultimo == penultimo) {
+      break()
+    }
+    
+    t <- 1:(length(t) + 1)
+    i = i + 1
+  }
+  
+  return(ultima_fecha + i)
+  
+}
+
+# Cargar y preparar datos ---------------------------
+
+df <- temp_casos_general %>%
+  select(Confirmados) %>%
+  tibble::rownames_to_column("Dia") %>%
+  mutate(Dia = lag(Dia),
+         Dia = if_else(is.na(Dia),
+                       0,
+                       as.numeric(Dia)
+         )
+  )
+
+tiempo <- 1:(length(df$Dia) + 6)
+
+ultima_fecha <- tail(temp_casos_general$Fecha, 1)
+
+# Ajustar modelo ---------------------------
+
+modelo <- nlsfit(df, 
+                 model = 10,
+                 start = c(a = 761.049823156006, 
+                           b = 6.63469882635722, 
+                           c = 0.08376468439801
+                 )
+)
+
+param <- modelo$Parameters[1:3,1]
+
+# Obtener salidas ---------------------------
+
+modelado <- gompertz_mod(param, tiempo)
+
+predicciones <- data.frame(seq.Date(ultima_fecha,
+                                    by = "day",
+                                    length.out = 7),
+                           round(tail(modelado, 7), 1))
+
+colnames(predicciones) <- c("Fecha", "Casos acum. estimados")
+
+InfoExtra <- data.frame(cuando_acaba(param, tiempo, ultima_fecha),
+                        modelo$Parameters[7,1])
+
+colnames(InfoExtra) <- c("Fecha final de la epidemia", "Coef. de Determinacion (R-cuadrado)")
+
+# Graficar datos ---------------------------
+
+modelo_gompertz <- temp_casos_general %>%
+  select(Fecha, Confirmados) %>%
+  add_row(Fecha = seq.Date(ultima_fecha + 1, 
+                           length.out = 6, 
+                           by = "day") ) %>%
+  mutate(Estimados = modelado) %>%
+  e_charts(Fecha) %>%
+  e_scatter(Confirmados, symbol_size = 7) %>%
+  e_line(Estimados) %>%
+  e_legend(right = 0) %>%
+  e_tooltip(trigger = "axis") %>%
+  e_title("Modelo de Gompertz", "Casos totales")
+
+saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
+
+######## seccion mapa -----------------
 
 json <- jsonlite::read_json("mapas-json/provincias.geojson")
 
