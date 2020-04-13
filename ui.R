@@ -323,18 +323,21 @@ shinyUI(
             title = "Modelo SIR del Covid-19 para Costa Rica",
             id = "modelo_SIR",
             echarts4rOutput("SIR", height = "65vh")
-          ),
+            ),
           f7Card(
             title = "Tabla de resumen",
             id = "tabla_resumen",
-         f7BlockHeader(h4(tableOutput("indicadores"))) %>%
-           f7Align("center")
-            
-          ),
+            f7BlockHeader(h4(tableOutput("indicadores"))) %>%
+               f7Align("center")
+            ),
+          f7Radio("variable", 
+                 label = "Seleccione un modelo de regresion:", 
+                 choices = c("Exponencial", "Gompertz"), 
+                 selected = "Exponencial"),
           f7Card(
             f7Button(
-              inputId = "exp", 
-              label = "Información acerca del modelaje de crecimiento exponencial"
+              inputId = "info_model_reg", 
+              label = "Información acerca del modelaje de regresión seleccionado"
             ),
             f7Popup(
               id="popup2",
@@ -355,12 +358,39 @@ shinyUI(
                   se incita al usuario a utilizar este modelo, e investigar sobre sobre otros modelos usados en epidemiología. "),
                 a("Referencias","https://towardsdatascience.com/modeling-exponential-growth-49a2b6f22e1f")
             ),
-            title = "Modelo de crecimiento exponencial",
-            echarts4rOutput("modelo_log_lin", height = "65vh")
+            f7Popup(
+              id="popup3",
+              title="Observaciones generales del modelo Gompertz",
+              p("El modelo de Gompertz es un modelo de regresión no lineal, perteneciente a la familia modelos logísticos 
+                  generalizados denominados 'modelos de Richard'. Consiste en una función exponencial doble, de tres parámetros 
+                  en su forma más simple y su diferencia con otros modelos logísticos es que, cuando la población modelada aumenta, 
+                  la tasa de crecimiento decrece exponencialmente, lo que la hace asimétrica. Lo anterior hace de Gompertz un modelo
+                  muy adecuado para describir fenómenos biológicos (como es el caso de una epidemia o el crecimiento de tumores, 
+                  área en la que este modelo es muy aplicado). "),
+              div(),
+              p("Este modelo es una función de crecimiento, por lo que representa los casos confirmados acumulados de Covid-19
+                  por día aproximadamente, no toma en cuenta los casos de recuperados o fallecidos ni otros aspectos epidemiológicos.
+                  La presente aplicación calibra los parámetros del modelo con los nuevos casos de cada día, optimizando sus predicciones."),
+              div(),
+              p("Importante resaltar que las estimaciones obtenidas no son más que predicciones matemáticas obtenidas con base
+                  en un modelo de regresión adoptado (en este caso, el modelo Gompertz), de manera que los resultados pueden 
+                  desviarse de la realidad si el crecimiento del número de casos reales deja de presentar un comportamiento 
+                  similar al modelo, esto puede pasar en cualquier momento ya que la evolución de la cantidad de contagios 
+                  depende de muchos factores, algunos dependientes del azar (por ejemplo: los casos no detectados) y otros 
+                  de naturaleza caótica. "),
+              div(),
+              p("Por demás, se insta al usuario a experimentar con este modelo y a investigar sobre otros modelos aplicables. "),
+              div(),
+              p("Referencias:"),
+              p("Loria, S. (29 de marzo de 2020). Una explicación breve del modelo de Gompertz para modelar el crecimiento del Coronavirus (COVID19). Obtenido de: https://www.youtube.com/watch?v=5a4qjvVEmqo"),
+              p("Espinoza, J. (7 de abril de 2020) Evolución de casos de Covid-19 en Costa Rica: Reporte al martes 7 de abril de 2020. Escuela de Matemática, Instituto Tecnológico de Costa Rica.")
+            ),
+            title = "Modelo de regresión seleccionado",
+            echarts4rOutput("modelo_regresion", height = "65vh")
           ),
           f7Card(
             title = "Predicción próximos 7 días",
-            f7BlockHeader(h4(tableOutput("estimacion_log_lin"))) %>%
+            f7BlockHeader(h4(tableOutput("estimacion_regresion"))) %>%
               f7Align("center")
             ) 
           ),
@@ -375,7 +405,7 @@ shinyUI(
                 label = "Información acerca del Período de Duplicación"
               ),
               f7Popup(
-                id="popup3",
+                id="popup4",
                 title= "Información sobre el Periódo de Duplicación",
                 p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia."),
                 div(),

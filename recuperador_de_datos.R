@@ -209,7 +209,7 @@ graf_edades <- dfedad  %>%
 saveRDS(graf_edades, file = "datos/graf_edades.RDS")
 
 
-######### seccion de modelo loglinear -----------------
+######### seccion de modelo loglineal -----------------
 
 estimacion<-function(x0,b,t){
   return(x0*(b^t))
@@ -265,21 +265,25 @@ ajuste_prediccion <- data.frame(
   casos = round(estimacion(x0 = x0,b = b,t = (1:(nrow(temp_casos_general) + 6))))
 )
 
-colnames(ajuste_prediccion) <- c("time","Estimado")
+colnames(ajuste_prediccion) <- c("time","Estimados")
 
 #### agregar fechas
 
 ajuste_prediccion <- ajuste_prediccion %>%
   mutate(Fecha = temp_casos_general[1,"Fecha"] + days(time - 1))
 
+general_temporal <- temp_casos_general %>%
+  mutate(Reales = Casos) #Eliminar esto apenas se haya modificado la base de datos general
+
 ajuste_prediccion <- ajuste_prediccion %>%
   e_charts(Fecha) %>%
-  e_line(Estimado) %>%
-  e_tooltip() %>%
-  e_data(temp_casos_general) %>%
-  e_scatter(Casos) %>%
+  e_line(Estimados) %>%
+  e_tooltip(trigger = "axis") %>%
+  e_data(general_temporal) %>%
+  e_scatter(Reales, symbol_size = 7) %>%
+  e_legend(right = 0) %>%
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-  e_y_axis(name = "Casos") 
+  e_title("Modelo exponencial", "Casos")
 
 #### almacena el grafico para el output
 
@@ -288,7 +292,7 @@ saveRDS(ajuste_prediccion, file = "datos/ajuste_prediccion.RDS")
 
 ######### seccion de modelo gompertz -----------------
 
-# Definir de funciones ---------------------------
+#### Definir de funciones 
 
 gompertz_mod = function(params, t) {
   
@@ -318,7 +322,7 @@ cuando_acaba <- function(params, t, ultima_fecha) {
   
 }
 
-# Cargar y preparar datos ---------------------------
+#### Cargar y preparar datos 
 
 df <- temp_casos_general %>%
   select(Confirmados) %>%
@@ -330,11 +334,11 @@ df <- temp_casos_general %>%
          )
   )
 
-tiempo <- 1:(length(df$Dia) + 6)
+tiempo <- 1:(length(df$Dia) + 7)
 
 ultima_fecha <- tail(temp_casos_general$Fecha, 1)
 
-# Ajustar modelo ---------------------------
+#### Ajustar modelo 
 
 modelo <- nlsfit(df, 
                  model = 10,
@@ -346,38 +350,47 @@ modelo <- nlsfit(df,
 
 param <- modelo$Parameters[1:3,1]
 
-# Obtener salidas ---------------------------
+#### Graficar datos
 
 modelado <- gompertz_mod(param, tiempo)
 
-predicciones <- data.frame(seq.Date(ultima_fecha,
-                                    by = "day",
-                                    length.out = 7),
-                           round(tail(modelado, 7), 1))
+predicciones_gompertz <- temp_casos_general %>%
+    select(Fecha) %>%
+    add_row(Fecha = seq.Date(ultima_fecha + 1, 
+                             length.out = 7, 
+                             by = "day")
+            ) %>%
+    mutate(Estimados = round(modelado, 0),
+           Fecha = factor(Fecha))
 
-colnames(predicciones) <- c("Fecha", "Casos acum. estimados")
+general_temporal <- temp_casos_general %>%
+  mutate(Reales = Confirmados) #Eliminar esto apenas se haya modificado la base de datos general
 
-InfoExtra <- data.frame(cuando_acaba(param, tiempo, ultima_fecha),
-                        modelo$Parameters[7,1])
-
-colnames(InfoExtra) <- c("Fecha final de la epidemia", "Coef. de Determinacion (R-cuadrado)")
-
-# Graficar datos ---------------------------
-
-modelo_gompertz <- temp_casos_general %>%
-  select(Fecha, Confirmados) %>%
-  add_row(Fecha = seq.Date(ultima_fecha + 1, 
-                           length.out = 6, 
-                           by = "day") ) %>%
-  mutate(Estimados = modelado) %>%
-  e_charts(Fecha) %>%
-  e_scatter(Confirmados, symbol_size = 7) %>%
-  e_line(Estimados) %>%
-  e_legend(right = 0) %>%
-  e_tooltip(trigger = "axis") %>%
-  e_title("Modelo de Gompertz", "Casos totales")
+modelo_gompertz <- predicciones_gompertz %>%
+    e_charts(Fecha) %>%
+    e_line(Estimados) %>%
+    e_data(general_temporal) %>%
+    e_scatter(Reales, symbol_size = 7) %>%
+    e_legend(right = 0) %>%
+    e_tooltip(trigger = "axis") %>%
+    e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+    e_title("Modelo de Gompertz", "Casos totales")
 
 saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
+
+#### Obtener salidas 
+
+colnames(predicciones_gompertz) <- c("Fecha", "Casos acum. estimados")
+
+infoextra_gompertz <- data.frame(cuando_acaba(param, tiempo, ultima_fecha),
+                                 modelo$Parameters[7,1])
+
+colnames(infoextra_gompertz) <- c("Fecha final de la epidemia", "Coef. de Determinacion (R-cuadrado)")
+
+saveRDS(tail(predicciones_gompertz, 7), file = "datos/predicciones_gompertz.RDS")
+
+saveRDS(infoextra_gompertz, file = "datos/infoextra_gompertz.RDS")
+
 
 ######## seccion mapa -----------------
 
