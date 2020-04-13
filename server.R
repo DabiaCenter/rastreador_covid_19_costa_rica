@@ -27,6 +27,9 @@ graf_genero <- readRDS("datos/graf_genero.RDS")
 graf_infectados <- readRDS("datos/graf_infectados.RDS")
 graf_nacionalidad <- readRDS("datos/graf_nacionalidad.RDS")
 graf_top10 <- readRDS("datos/graf_top10.RDS")
+modelo_gompertz <- readRDS("datos/modelo_gompertz.RDS")
+infoextra_gompertz <- readRDS("datos/infoextra_gompertz.RDS")
+predicciones_gompertz <- readRDS("datos/predicciones_gompertz.RDS")
 
 ## Codigo debe ir aparte en otro Script
 
@@ -45,7 +48,7 @@ SIR <- function(time, state, parameters) {
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
     
-    #Conteos de estadísticas actuales
+    #Conteos de estadísticas actuales ----
     
     output$conf <- renderCountup({
         countup(max(cr_caso_general$Confirmados), duration = 7)
@@ -63,9 +66,10 @@ shinyServer(function(input, output) {
         countup(max(cr_caso_general$Recuperados), duration = 7)
     })
     
-    #Grafico comparativo entre infectados por dia e infectados acumulados
+    #Graficos seccion "General" ----
+    
     output$graf_infectados <- renderEcharts4r({
-        
+        #Grafico comparativo entre infectados por dia e infectados acumulados
         graf_infectados
     })
     
@@ -105,17 +109,28 @@ shinyServer(function(input, output) {
         graf_edades
     })
     
-    output$modelo_log_lin <- renderEcharts4r({
+    #Seccion modelos de regresion ----
+    
+    output$modelo_regresion <- renderEcharts4r({
         
-        ajuste
+        if (input$variable == "Exponencial") {
+            ajuste
+        } else if (input$variable == "Gompertz") {
+            modelo_gompertz
+        }
         
     })
     
-    output$estimacion_log_lin<-renderTable({
-        
-        pred
+    output$estimacion_regresion <- renderTable({
+        if (input$variable == "Exponencial") {
+            pred
+        } else if (input$variable == "Gompertz") {
+            predicciones_gompertz
+        }
         
     })
+    
+    #Seccion mapa  ----
     
     output$map <- renderEcharts4r({
         
@@ -157,7 +172,7 @@ shinyServer(function(input, output) {
         
     })
     
-    #Parte del server de modelaje del Modelo SIR
+    #Parte del server de modelaje del Modelo SIR  ----
     valores <- reactive({
         
         req(input$poblacion, input$beta, input$gamma)
@@ -236,18 +251,22 @@ shinyServer(function(input, output) {
             e_text_style(fontSize=13)
     })
     
-    #Popups de la explicación de los modelos y período de duplicación
+    #Popups de la explicación de los modelos y período de duplicación ---------
     
     observeEvent(input$sir, {
         f7TogglePopup(id = "popup1")
     })
     
-    observeEvent(input$exp, {
-        f7TogglePopup(id = "popup2")
+    observeEvent(input$info_model_reg, {
+        if (input$variable == "Exponencial") {
+            f7TogglePopup(id = "popup2")
+        } else if (input$variable == "Gompertz") {
+            f7TogglePopup(id = "popup3")
+        }
     })
     
     observeEvent(input$periodo, {
-        f7TogglePopup(id = "popup3")
+        f7TogglePopup(id = "popup4")
     })
    
 })
