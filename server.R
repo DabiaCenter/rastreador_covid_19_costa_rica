@@ -30,6 +30,8 @@ graf_top10 <- readRDS("datos/graf_top10.RDS")
 modelo_gompertz <- readRDS("datos/modelo_gompertz.RDS")
 infoextra_gompertz <- readRDS("datos/infoextra_gompertz.RDS")
 predicciones_gompertz <- readRDS("datos/predicciones_gompertz.RDS")
+modelo_logistico1<-readRDS("datos/modelo_logistico.RDS")
+predicciones_logistica1<-readRDS("datos/predicciones_logistica.RDS")
 
 ## Codigo debe ir aparte en otro Script
 
@@ -117,6 +119,8 @@ shinyServer(function(input, output) {
             ajuste
         } else if (input$variable == "Gompertz") {
             modelo_gompertz
+        } else if (input$variable =="Logístico"){
+            modelo_logistico1
         }
         
     })
@@ -126,9 +130,12 @@ shinyServer(function(input, output) {
             pred
         } else if (input$variable == "Gompertz") {
             predicciones_gompertz
+        } else if (input$variable =="Logístico"){
+            predicciones_logistica1
         }
         
     })
+    
     
     #Seccion mapa  ----
     
@@ -263,10 +270,13 @@ shinyServer(function(input, output) {
         } else if (input$variable == "Gompertz") {
             f7TogglePopup(id = "popup3")
         }
+        else if (input$variable == "Logístico") {
+            f7TogglePopup(id = "popup4")
+        }
     })
     
     observeEvent(input$periodo, {
-        f7TogglePopup(id = "popup4")
+        f7TogglePopup(id = "popup5")
     })
    
 })

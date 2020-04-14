@@ -6,6 +6,7 @@ library(lubridate)
 library(echarts4r)
 library(echarts4r.maps)
 library(easynls)
+library(reticulate)
 
 ####### Cargar/tratar datos -----------
 
@@ -209,7 +210,7 @@ graf_edades <- dfedad  %>%
 saveRDS(graf_edades, file = "datos/graf_edades.RDS")
 
 
-######### seccion de modelo loglineal -----------------
+######### seccion de modelo exponencial -----------------
 
 estimacion<-function(x0,b,t){
   return(x0*(b^t))
@@ -289,6 +290,10 @@ ajuste_prediccion <- ajuste_prediccion %>%
 
 saveRDS(ajuste_prediccion, file = "datos/ajuste_prediccion.RDS")
 
+### info extra exponencial
+infoextra_exponencial<-data.frame(
+  R_cuadrado<-sum((temp_casos_general$Estimado-mean(temp_casos_general$Confirmados))^2)/sum((temp_casos_general$Confirmados-mean(temp_casos_general$Confirmados))^2)
+)
 
 ######### seccion de modelo gompertz -----------------
 
@@ -390,6 +395,69 @@ colnames(infoextra_gompertz) <- c("Fecha final de la epidemia", "Coef. de Determ
 saveRDS(tail(predicciones_gompertz, 7), file = "datos/predicciones_gompertz.RDS")
 
 saveRDS(infoextra_gompertz, file = "datos/infoextra_gompertz.RDS")
+
+######### seccion de modelo logistico -----------------
+dias<-temp_casos_general$dias
+confirmados<-temp_casos_general$Confirmados
+#Funcion que me permite usar python dentro de R de manera interactiva
+repl_python()
+
+import numpy as np
+import scipy.optimize as optim
+#Definir la funcion logistica a optimizar
+def logistic_model(x,a,b,c):
+  return c/(1+np.exp(-(x-b)/a))
+#Establecer valores aleatorios y limites para los parametros
+p0=np.random.exponential(size=3)
+bounds=(0,[100000.,10000.,4900000.])
+
+#Estimar el valor de los parametros a partir de los datos originales
+ajuste = optim.curve_fit(logistic_model,r.dias,r.confirmados,p0=p0,bounds=bounds)
+#salir de python
+exit
+
+#guardar parametros del modelo logístico
+a=as.numeric(py$ajuste[[1]][1])
+b=as.numeric(py$ajuste[[1]][2])
+c=as.numeric(py$ajuste[[1]][3])
+#Definir funcion logistica en R
+logistic_model<-function(x,a,b,c){
+  return (c/(1+exp(-(x-b)/a)))
+}
+#Generar ajuste y predicciones del modelo logístico
+ajuste_regresion_logistica<-logistic_model(x=(1:(nrow(temp_casos_general) + 6)),a=a,b=b,c=c)
+
+#Generar DataFrame para el grafico de regresion logística
+data_regresion_logistica<-data.frame(
+  Estimados = ajuste_regresion_logistica,
+  time = (1:(nrow(temp_casos_general) + 6))
+)
+#cambiar fecha para gráfico acumulado
+ajuste_logistico_acum<-data_regresion_logistica%>%
+  mutate(
+    Fecha = temp_casos_general[1,"Fecha"] + days(time - 1)
+  ) %>%
+  select(
+    Fecha, Estimados
+  )
+
+#gráfico acumulado
+modelo_logistico<-ajuste_logistico_acum%>%
+  e_charts(Fecha)%>%
+  e_line(Estimados)%>%
+  e_tooltip(trigger = "axis") %>%
+  e_data(temp_casos_general) %>%
+  e_scatter(Confirmados,symbol_size = 7)%>%
+  e_legend(right = 0)%>%
+  e_title("Modelo Logístico","Casos totales")%>%
+  e_x_axis("Fecha", nameLocation = "center", nameGap = 40)
+
+saveRDS(modelo_logistico,file="datos/modelo_logistico.RDS")
+
+predicciones_logistica<-ajuste_logistico_acum[(nrow(temp_casos_general):(nrow(temp_casos_general) + 6)) ,]
+predicciones_logistica$Fecha <- as.character(predicciones_logistica$Fecha)
+
+saveRDS(predicciones_logistica,file="datos/predicciones_logistica.RDS")
 
 
 ######## seccion mapa -----------------
