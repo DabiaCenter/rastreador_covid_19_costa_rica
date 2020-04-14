@@ -30,9 +30,12 @@ library(remotes)
 library(lubridate)
 library(countup)
 library(shinyWidgets)
+library(easynls)
+library(reticulate)
 ```
 
-*SE DEBEN DE TENER INSTALADOS Y ACTUALIZADOS ESTOS PAQUETES*
+*SE DEBEN DE TENER INSTALADOS Y ACTUALIZADOS ESTOS PAQUETES*.
+
 NOTA: Los paquetes de echarts4r.maps, shinyMobile y shinyscroll se deben de instalar con la funcion remotes::install_github() 
 
 ### Funcionamiento de la aplicación
