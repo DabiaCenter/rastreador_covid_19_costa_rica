@@ -332,7 +332,7 @@ shinyUI(
             ),
           f7Radio("variable", 
                  label = "Seleccione un modelo de regresion:", 
-                 choices = c("Exponencial", "Gompertz"), 
+                 choices = c("Exponencial", "Gompertz","Logístico"), 
                  selected = "Exponencial"),
           f7Card(
             f7Button(
@@ -385,14 +385,25 @@ shinyUI(
               p("Loria, S. (29 de marzo de 2020). Una explicación breve del modelo de Gompertz para modelar el crecimiento del Coronavirus (COVID19). Obtenido de: https://www.youtube.com/watch?v=5a4qjvVEmqo"),
               p("Espinoza, J. (7 de abril de 2020) Evolución de casos de Covid-19 en Costa Rica: Reporte al martes 7 de abril de 2020. Escuela de Matemática, Instituto Tecnológico de Costa Rica.")
             ),
+            f7Popup(
+              id= "popup4",
+              title="Observaciones generales del modelo Logístico",
+              p("Aunque el número de infectados suele crecer de manera exponencial en las pandemias, llega un punto donde dejan de comportarse de esta manera, se comienzan a presentar menos casos que en los días
+                anteriores. En general los modelos exponenciales ajustan bien al inicio de la epidemia, pero los modelos logísticos ajustan mejor al periodo total. En el punto de la curva comienza a cambiar su 
+                forma es donde se comienza a llegar al máximo número de infectados. El modelo actual está limitado por el número de datos y por el comportamiento que han tenido los casos en el país. "),
+              div(),
+              p("Referencias"),
+              p("https://towardsdatascience.com/modeling-logistic-growth-1367dc971de2")
+              
+              ),
             title = "Modelo de regresión seleccionado",
             echarts4rOutput("modelo_regresion", height = "65vh")
           ),
-          f7Card(
+             f7Card(
             title = "Predicción próximos 7 días",
             f7BlockHeader(h4(tableOutput("estimacion_regresion"))) %>%
               f7Align("center")
-            ) 
+             ),
           ),
           f7Tab(
             tabName = "Período",
@@ -405,7 +416,7 @@ shinyUI(
                 label = "Información acerca del Período de Duplicación"
               ),
               f7Popup(
-                id="popup4",
+                id="popup5",
                 title= "Información sobre el Periódo de Duplicación",
                 p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia."),
                 div(),
