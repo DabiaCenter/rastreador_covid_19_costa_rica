@@ -456,19 +456,18 @@ ajuste_logistico_acum<-data_regresion_logistica%>%
 modelo_logistico<-ajuste_logistico_acum%>%
   e_charts(Fecha)%>%
   e_line(Estimados)%>%
-  e_tooltip(trigger = "axis") %>%
-  e_data(temp_casos_general) %>%
+  e_data(temp_casos_general)%>%
   e_scatter(Confirmados,symbol_size = 7)%>%
   e_legend(right = 0)%>%
-  e_title("Modelo Logístico")%>%
+  e_tooltip(trigger = "axis")  %>%
   e_x_axis("Fecha", nameLocation = "center", nameGap = 40) %>%
-  e_y_axis(name = "Casos acumulados")
-
+  e_y_axis(name = "Casos acumulados")%>%
+  e_title("Modelo Logístico")
 colnames(ajuste_logistico_acum) <- c("Fecha", "Casos acum. estimados")
 
 saveRDS(modelo_logistico,file="datos/modelo_logistico.RDS")
 
-predicciones_logistica<-ajuste_logistico_acum[(nrow(temp_casos_general):(nrow(temp_casos_general) + 6)) ,]
+predicciones_logistica<-ajuste_logistico_acum[((nrow(temp_casos_general)+1):(nrow(temp_casos_general) + 6)) ,]
 predicciones_logistica$Fecha <- as.character(predicciones_logistica$Fecha)
 
 saveRDS(predicciones_logistica,file="datos/predicciones_logistica.RDS")
