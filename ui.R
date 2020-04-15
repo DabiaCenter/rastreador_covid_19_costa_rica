@@ -333,7 +333,7 @@ shinyUI(
           f7Radio("variable", 
                  label = "Seleccione un modelo de regresion:", 
                  choices = c("Exponencial", "Gompertz","Logístico"), 
-                 selected = "Exponencial"),
+                 selected = "Gompertz"),
           f7Card(
             f7Button(
               inputId = "info_model_reg", 

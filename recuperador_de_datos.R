@@ -54,7 +54,13 @@ temp_casos_general <- temp_casos_general %>%
                                           periodo_de_duplicacion),
          casosdia = casos_nuevos + 1,
          logcasos = log(casosdia),
-         dias = 1:nrow(temp_casos_general))
+         dias = 1:nrow(temp_casos_general),
+         descartados_anterior = lag(Descartados),
+         descartados_anterior = if_else(is.na(descartados_anterior),
+                                        0,
+                                        as.numeric(descartados_anterior)),
+         descartados_por_dia = Descartados - descartados_anterior
+         )
 
 temp_casos_general$Fecha <- as.Date(as.character(temp_casos_general$Fecha), 
                                     format = "%d/%m/%Y")
@@ -75,7 +81,7 @@ genero <- factor(x = c("Hombres", "Mujeres"))
 dfgeneros <- data.frame(Genero = genero, 
                         Infectados = c(ultima_fila$Hombres, ultima_fila$Mujeres)) 
 
-#Codigo para obtener infectados por genero
+#Codigo para obtener infectados por nacionalidad
 nacionalidad <- factor(x = c("Extranjeros", "Costarricenses"))
 dfnacionalidad <- data.frame(Nacionalidad = nacionalidad, 
                              Infectados = c(ultima_fila$Extranjeros, ultima_fila$Costarricenses)) 
@@ -118,12 +124,14 @@ saveRDS(graf_infectados, file = "datos/graf_infectados.RDS")
 graf_descartados <- temp_casos_general %>%
   e_charts(Fecha) %>% 
   e_line(Descartados) %>%
+  e_area(descartados_por_dia, name = "Descartados por día") %>%
   e_tooltip(
     axisPointer = list(
       type = "cross"
     )
   ) %>%
   e_mark_point("Descartados", data = list(type = "max")) %>%
+  e_mark_point("Descartados por día", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
   e_title("Descartados") %>% 
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
@@ -253,7 +261,7 @@ prediccion <- prediccion %>%
     Fecha, Casos_estimados
   )
 
-colnames(prediccion)<-c("Fecha","Casos estimados")
+colnames(prediccion)<-c("Fecha","Casos diarios estimados")
 
 prediccion$Fecha <- as.character(prediccion$Fecha)
 
@@ -281,10 +289,11 @@ ajuste_prediccion <- ajuste_prediccion %>%
   e_line(Estimados) %>%
   e_tooltip(trigger = "axis") %>%
   e_data(general_temporal) %>%
-  e_scatter(Reales, symbol_size = 7) %>%
+  e_scatter(Reales, symbol_size = 7, name = "Confirmados") %>%
   e_legend(right = 0) %>%
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-  e_title("Modelo exponencial", "Casos")
+  e_y_axis(name = "Casos diarios") %>%
+  e_title("Modelo exponencial")
 
 #### almacena el grafico para el output
 
@@ -375,11 +384,12 @@ modelo_gompertz <- predicciones_gompertz %>%
     e_charts(Fecha) %>%
     e_line(Estimados) %>%
     e_data(general_temporal) %>%
-    e_scatter(Reales, symbol_size = 7) %>%
+    e_scatter(Reales, symbol_size = 7, name = "Confirmados") %>%
     e_legend(right = 0) %>%
     e_tooltip(trigger = "axis") %>%
     e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-    e_title("Modelo de Gompertz", "Casos totales")
+    e_y_axis(name = "Casos acumulados") %>%
+    e_title("Modelo de Gompertz")
 
 saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
 
@@ -435,7 +445,8 @@ data_regresion_logistica<-data.frame(
 #cambiar fecha para gráfico acumulado
 ajuste_logistico_acum<-data_regresion_logistica%>%
   mutate(
-    Fecha = temp_casos_general[1,"Fecha"] + days(time - 1)
+    Fecha = temp_casos_general[1,"Fecha"] + days(time - 1),
+    Estimados = round(Estimados)
   ) %>%
   select(
     Fecha, Estimados
@@ -449,8 +460,11 @@ modelo_logistico<-ajuste_logistico_acum%>%
   e_data(temp_casos_general) %>%
   e_scatter(Confirmados,symbol_size = 7)%>%
   e_legend(right = 0)%>%
-  e_title("Modelo Logístico","Casos totales")%>%
-  e_x_axis("Fecha", nameLocation = "center", nameGap = 40)
+  e_title("Modelo Logístico")%>%
+  e_x_axis("Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Casos acumulados")
+
+colnames(ajuste_logistico_acum) <- c("Fecha", "Casos acum. estimados")
 
 saveRDS(modelo_logistico,file="datos/modelo_logistico.RDS")
 
