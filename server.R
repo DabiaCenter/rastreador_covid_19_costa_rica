@@ -32,6 +32,9 @@ infoextra_gompertz <- readRDS("datos/infoextra_gompertz.RDS")
 predicciones_gompertz <- readRDS("datos/predicciones_gompertz.RDS")
 modelo_logistico1<-readRDS("datos/modelo_logistico.RDS")
 predicciones_logistica1<-readRDS("datos/predicciones_logistica.RDS")
+infoextra_exponencial<-readRDS("datos/infoextra_exponencial.RDS")
+infoextra_logistico<-readRDS("datos/infoextra_logistico.RDS")
+
 
 ## Codigo debe ir aparte en otro Script
 
@@ -135,6 +138,19 @@ shinyServer(function(input, output) {
         }
         
     })
+    
+    
+    output$info_adicional <- renderTable({
+        if (input$variable == "Exponencial") {
+            infoextra_exponencial
+        } else if (input$variable == "Gompertz") {
+            infoextra_gompertz
+        } else if (input$variable =="Logístico"){
+            infoextra_logistico
+        }
+        
+    })
+    
     
     
     #Seccion mapa  ----

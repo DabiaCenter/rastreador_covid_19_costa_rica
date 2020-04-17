@@ -333,7 +333,7 @@ shinyUI(
           f7Radio("variable", 
                  label = "Seleccione un modelo de regresion:", 
                  choices = c("Exponencial", "Gompertz","Logístico"), 
-                 selected = "Exponencial"),
+                 selected = "Gompertz"),
           f7Card(
             f7Button(
               inputId = "info_model_reg", 
@@ -399,11 +399,22 @@ shinyUI(
             title = "Modelo de regresión seleccionado",
             echarts4rOutput("modelo_regresion", height = "65vh")
           ),
-             f7Card(
-            title = "Predicción próximos 7 días",
-            f7BlockHeader(h4(tableOutput("estimacion_regresion"))) %>%
-              f7Align("center")
-             ),
+          f7Row(
+            f7Col(
+              f7Card(
+                title = "Predicción próximos 7 días",
+                f7BlockHeader(h4(tableOutput("estimacion_regresion"))) %>%
+                f7Align("center")
+              )
+            ),
+            f7Col(
+              f7Card(
+                title= "Información adicional",
+                f7BlockHeader(h4(tableOutput("info_adicional")))%>%
+                f7Align("center")
+              )
+            )
+          )
           ),
           f7Tab(
             tabName = "Período",
