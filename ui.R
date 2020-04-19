@@ -317,6 +317,10 @@ shinyUI(
                        value = 4900000, min = 0, max = 10000000, step = 100000)
               )
             )
+          ),
+          f7Button(
+            inputId = "reset", 
+            label = "Volver a los valores iniciales"
           )
           ),
           f7Card(
