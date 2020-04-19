@@ -112,11 +112,11 @@ shinyUI(
           swipeable = FALSE,
            waiter_show_on_load(html = loader),
           f7Card(
-            f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 140, width = 140)) %>%
+            f7BlockHeader(img(src = "https://www.grupodabia.com/nosotros/logo.jpg", height = 110, width = 110)) %>%
               f7Align("center"),
             h2("Estado Covid-19 Costa Rica", class = "center", align = "center"),
             p("Datos generales", class = "center", align = "center"),
-            p(paste("Datos actualizados a la fecha:", act), class = "center", align = "center")
+            p(paste("Actualizado a la fecha:", act), class = "center", align = "center")
           ),
           f7Row(
             f7Col(
@@ -172,16 +172,16 @@ shinyUI(
               spaceBetween = 60,
               slidePerView = 1,
               f7Slide(
-                echarts4rOutput("graf_infectados", height = "50vh")
+                echarts4rOutput("graf_infectados", height = "65vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_descartados", height = "50vh")
+                echarts4rOutput("graf_descartados", height = "65vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_calendario", height = "50vh")
+                echarts4rOutput("graf_calendario", height = "65vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_top10", height = "50vh")
+                echarts4rOutput("graf_top10", height = "65vh")
               )
             )
           ),
@@ -410,8 +410,7 @@ shinyUI(
             f7Col(
               f7Card(
                 title= "Información adicional",
-                f7BlockHeader(h4(tableOutput("info_adicional")))%>%
-                f7Align("center")
+                f7BlockHeader(f7Align(h4(tableOutput("info_adicional")), "center"))
               )
             )
           )
