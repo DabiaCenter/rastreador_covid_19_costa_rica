@@ -46,10 +46,39 @@ SIR <- function(time, state, parameters) {
     })
 }
 
+cr_caso_general <- readRDS("datos/casos_general.RDS")
 
+N <- 4900000
+init <- c(
+  S = N - cr_caso_general$Confirmados[1],
+  I = cr_caso_general$Confirmados[1],
+  R = 0
+)
+
+Day <- 1:(length(cr_caso_general$Confirmados))
+
+RSS <- function(parameters) {
+  names(parameters) <- c("beta", "gamma")
+  out <- ode(y = init, times = Day, func = SIR, parms = parameters)
+  fit <- out[, 3]
+  sum((cr_caso_general$Confirmados - fit)^2)
+}
+
+
+Opt <- optim(c(0.5, 0.5),
+             RSS,
+             method = "L-BFGS-B",
+             lower = c(0, 0),
+             upper = c(1, 1)
+)
+
+Opt_par <- setNames(Opt$par, c("beta", "gamma"))
+Opt_par
+beta_val = Opt$par[1]
+gamma_val = Opt$par[2]
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
     
     #Conteos de estadísticas actuales ----
     
@@ -220,10 +249,9 @@ shinyServer(function(input, output) {
             e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
             e_y_axis(name = "Población") %>%
             e_text_style(fontSize = 12) %>%
-            e_line(S) %>%
-            e_line(I) %>%
-            e_line(R) %>%
-            e_tooltip() 
+            e_line(S, name = "Susceptibles") %>%
+            e_line(I, name = "Infectados") %>%
+            e_line(R, name = "Recuperados")
     })
     
     
@@ -260,6 +288,16 @@ shinyServer(function(input, output) {
                           "Pico de la pandemia")
         df
     })
+    
+    #
+    
+    observeEvent(input$reset, {
+        updateSliderInput(session, "beta", value = beta_val)
+        updateSliderInput(session, "gamma", value = gamma_val)
+        updateSliderInput(session, "poblacion", value = 4900000)
+    })
+    
+    # Gráfico del período de duplicación
     
     output$pedup <- renderEcharts4r({
         cr_caso_general %>%
