@@ -151,7 +151,7 @@ graf_calendario <- temp_casos_general %>%
              yearLabel = list(position = "right")) %>% 
   e_heatmap(Casos, coord_system = "calendar") %>% 
   e_visual_map(max = maximo_casos, top = 60)  %>% 
-  e_title("Calendario: nuevos casos por dÌa") %>%
+  e_title("Calendario: nuevos casos por d√≠a") %>%
   e_tooltip(formatter = htmlwidgets::JS("
               function(params){
                 return('Fecha: ' + params.value[0] + 
@@ -194,7 +194,7 @@ saveRDS(graf_estados, file = "datos/graf_estados.RDS")
 graf_genero <- dfgeneros %>% 
   e_charts(Genero) %>% 
   e_pie(Infectados, radius = c("50%", "70%")) %>% 
-  e_title("Infectados seg˙n gÈnero") %>%
+  e_title("Infectados seg√∫n g√©nero") %>%
   e_tooltip(axisPointer = list(type = "cross"))
 
 saveRDS(graf_genero, file = "datos/graf_genero.RDS")
@@ -203,7 +203,7 @@ saveRDS(graf_genero, file = "datos/graf_genero.RDS")
 graf_nacionalidad <- dfnacionalidad %>% 
   e_charts(Nacionalidad) %>% 
   e_pie(Infectados, radius = c("50%", "70%")) %>% 
-  e_title("Infectados seg˙n nacionalidad") %>%
+  e_title("Infectados seg√∫n nacionalidad") %>%
   e_tooltip(axisPointer = list(type = "cross")) 
 
 saveRDS(graf_nacionalidad, file = "datos/graf_nacionalidad.RDS")
@@ -212,7 +212,7 @@ saveRDS(graf_nacionalidad, file = "datos/graf_nacionalidad.RDS")
 graf_edades <- dfedad  %>% 
   e_charts(Grupos) %>% 
   e_pie(Infectados, radius = c("50%", "70%")) %>% 
-  e_title("Infectados seg˙n grupo etario") %>%
+  e_title("Infectados seg√∫n grupo etario") %>%
   e_tooltip(axisPointer = list(type = "cross"))
 
 saveRDS(graf_edades, file = "datos/graf_edades.RDS")
@@ -439,7 +439,7 @@ ajuste = optim.curve_fit(logistic_model,r.dias,r.confirmados,p0=p0,bounds=bounds
 #salir de python
 exit
 
-#guardar parametros del modelo logÌstico
+#guardar parametros del modelo log√≠stico
 a=as.numeric(py$ajuste[[1]][1])
 b=as.numeric(py$ajuste[[1]][2])
 c=as.numeric(py$ajuste[[1]][3])
@@ -447,15 +447,15 @@ c=as.numeric(py$ajuste[[1]][3])
 logistic_model<-function(x,a,b,c){
   return (c/(1+exp(-(x-b)/a)))
 }
-#Generar ajuste y predicciones del modelo logÌstico
+#Generar ajuste y predicciones del modelo log√≠stico
 ajuste_regresion_logistica<-logistic_model(x=(1:(nrow(temp_casos_general) + 6)),a=a,b=b,c=c)
 
-#Generar DataFrame para el grafico de regresion logÌstica
+#Generar DataFrame para el grafico de regresion log√≠stica
 data_regresion_logistica<-data.frame(
   Estimados = ajuste_regresion_logistica,
   time = (1:(nrow(temp_casos_general) + 6))
 )
-#cambiar fecha para gr·fico acumulado
+#cambiar fecha para gr√°fico acumulado
 ajuste_logistico_acum<-data_regresion_logistica%>%
   mutate(
     Fecha = temp_casos_general[1,"Fecha"] + days(time - 1),
@@ -465,7 +465,7 @@ ajuste_logistico_acum<-data_regresion_logistica%>%
     Fecha, Estimados
   )
 
-#gr·fico acumulado
+#gr√°fico acumulado
 modelo_logistico<-ajuste_logistico_acum%>%
   e_charts(Fecha)%>%
   e_line(Estimados)%>%
@@ -485,7 +485,7 @@ predicciones_logistica$Fecha <- as.character(predicciones_logistica$Fecha)
 
 saveRDS(predicciones_logistica,file="datos/predicciones_logistica.RDS")
 
-#Error medio absoluto logÌstico
+#Error medio absoluto log√≠stico
 infoextra_logistico<-data.frame(
   mae = round(mean(abs(general_temporal$Confirmados-ajuste_regresion_logistica[1:nrow(general_temporal)])),2)
   
