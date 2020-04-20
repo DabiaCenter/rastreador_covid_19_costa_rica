@@ -247,10 +247,10 @@ shinyUI(
               title = "Información acerca del modelo SIR",
               p("Existen diferentes tipos de modelos epidemiológicos para modelar el comportamiento de enfermedades 
                 contagiosas, pero por factores de una fácil comprensión, además de que modela de una manera acertada
-                el comportamiento del Covid-19, se utiliza el modelo SIR."),
+                el comportamiento del Covid-19, se utiliza el modelo SIR.",align="justify"),
               div(),
               p("El modelo SIR, es un modelo compartimental que parte de la idea de dividir a la población en tres 
-                grupos de personas, los cuales son:"),
+                grupos de personas, los cuales son:",align="justify"),
               div(),
               p(strong("Susceptibles(S):"), "el grupo de personas que se encuentra sana pero puede ser contagiada."),
               div(),
@@ -266,24 +266,24 @@ shinyUI(
                 el comportamiento si la tasa de contagios baja y la tasa de recuperación sube o viceversa. ¿Qué es lo que se busca?
                 El fin de los esfuerzos del gobierno y toda la población es que la curva se aplane y esto se logra buscando que la tasa
                 de contagios disminuya. Para el comportamiento del coronavirus, y de cualquier enfermedad que sea muy contagiosa, la tasa 
-                de contagios siempre va a ser mayor a la tasa de recuperación."),
+                de contagios siempre va a ser mayor a la tasa de recuperación.",align="justify"),
               div(),
               p("Este modelo SIR es un modelo de ecuaciones diferenciales que es muy flexible, ya que permite observar cómo cambia el número
                 de persona susceptibles a contagiarse, las infectadas y las recuperadas, donde muestra la importancia y la gran búsqueda de lograr
                 aplanar la curva de los infectados. Además, permite tener predicciones como el previsible del", strong("pico de contagios"), ", la", 
                 strong("tasa de contacto"), "(R0) y el posible", strong("porcentaje de la población a infectarse"), ", a todo esto, lo que se quiere 
-                es disminuirlo al máximo."),
+                es disminuirlo al máximo.",align="justify"),
               div(),
               p("La tasa de contacto (R0) o también conocida como el número de reproducción es muy importante porque lo que indica es
                 el número de personas sanas o suceptibles que llegan a ser infectados por una persona que está contagiada con la enfermedad, es decir,
                 si el número de reproducción (R0) es de 2, esto quiere decir que una persona infectada está contagiando a 2 personas sanas. De acuerdo,
                 con Manuel de León, indica que lo ideal es que este número esté por debajo de 1 y a nivel mundial, este número para el Covid-19 está entre
-                1.5 y 2.5."),
+                1.5 y 2.5.",align="justify"),
               div(),
               p("NOTA: Todas las predicciones realizadas están basadas en modelos matemáticos y no necesariamente son los números exactos que van a haber
                 al final de esta pandemia en nuestro país, hay factores que lo modelos no toman en cuenta como la cuarentena que está realizando el país o
                 todos los esfuerzos que hace el gobierno por controlar la pandemia, de parte de DABIA esperamos que estos números terminen siendo los más
-                favorables al país y esta pandemia termine lo más pronto posible."),
+                favorables al país y esta pandemia termine lo más pronto posible.",align="justify"),
               div(),
               p("Para más información visitar", 
                 a(href = "https://www.statsandr.com/blog/covid-19-in-belgium/", "Stats and R"), "(www.statsandr.com/blog/covid-19-in-belgium)", 
@@ -354,12 +354,12 @@ shinyUI(
                   con estos valores estimados, se calculó el exponencial de cada uno, y se procedió a ajustar el 
                   modelo de crecimiento exponencial a los datos,y a realizar una estimación para los próximos siete
                   días. No obstante, en algún momento los casos dejan de aumentar, por lo que como se mencionó este 
-                  modelo ajusta solo al inicio del periodo de infección."),
+                  modelo ajusta solo al inicio del periodo de infección.",align="justify"),
                 div(),
                 p("Importante resaltar que los resultados obtenidos en este estudio no representan la situación real
                   del país. Simplemente es una demostración de uno de modelos matemáticos que representan 
                   el comportamiento de un virus como el COVID-19, esto no quiere decir que sea el mejor. Al contrario, 
-                  se incita al usuario a utilizar este modelo, e investigar sobre sobre otros modelos usados en epidemiología. "),
+                  se incita al usuario a utilizar este modelo, e investigar sobre sobre otros modelos usados en epidemiología. ",align="justify"),
                 a("Referencias","https://towardsdatascience.com/modeling-exponential-growth-49a2b6f22e1f")
             ),
             f7Popup(
@@ -370,18 +370,18 @@ shinyUI(
                   en su forma más simple y su diferencia con otros modelos logísticos es que, cuando la población modelada aumenta, 
                   la tasa de crecimiento decrece exponencialmente, lo que la hace asimétrica. Lo anterior hace de Gompertz un modelo
                   muy adecuado para describir fenómenos biológicos (como es el caso de una epidemia o el crecimiento de tumores, 
-                  área en la que este modelo es muy aplicado). "),
+                  área en la que este modelo es muy aplicado). ",align="justify"),
               div(),
               p("Este modelo es una función de crecimiento, por lo que representa los casos confirmados acumulados de Covid-19
                   por día aproximadamente, no toma en cuenta los casos de recuperados o fallecidos ni otros aspectos epidemiológicos.
-                  La presente aplicación calibra los parámetros del modelo con los nuevos casos de cada día, optimizando sus predicciones."),
+                  La presente aplicación calibra los parámetros del modelo con los nuevos casos de cada día, optimizando sus predicciones.",align="justify"),
               div(),
               p("Importante resaltar que las estimaciones obtenidas no son más que predicciones matemáticas obtenidas con base
                   en un modelo de regresión adoptado (en este caso, el modelo Gompertz), de manera que los resultados pueden 
                   desviarse de la realidad si el crecimiento del número de casos reales deja de presentar un comportamiento 
                   similar al modelo, esto puede pasar en cualquier momento ya que la evolución de la cantidad de contagios 
                   depende de muchos factores, algunos dependientes del azar (por ejemplo: los casos no detectados) y otros 
-                  de naturaleza caótica. "),
+                  de naturaleza caótica. ",align="justify"),
               div(),
               p("Por demás, se insta al usuario a experimentar con este modelo y a investigar sobre otros modelos aplicables. "),
               div(),
@@ -394,7 +394,7 @@ shinyUI(
               title="Observaciones generales del modelo Logístico",
               p("Aunque el número de infectados suele crecer de manera exponencial en las pandemias, llega un punto donde dejan de comportarse de esta manera, se comienzan a presentar menos casos que en los días
                 anteriores. En general los modelos exponenciales ajustan bien al inicio de la epidemia, pero los modelos logísticos ajustan mejor al periodo total. En el punto de la curva comienza a cambiar su 
-                forma es donde se comienza a llegar al máximo número de infectados. El modelo actual está limitado por el número de datos y por el comportamiento que han tenido los casos en el país. "),
+                forma es donde se comienza a llegar al máximo número de infectados. El modelo actual está limitado por el número de datos y por el comportamiento que han tenido los casos en el país. ",align="justify"),
               div(),
               p("Referencias"),
               p("https://towardsdatascience.com/modeling-logistic-growth-1367dc971de2")
@@ -432,26 +432,26 @@ shinyUI(
               f7Popup(
                 id="popup5",
                 title= "Información sobre el Periódo de Duplicación",
-                p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia."),
+                p("El COVID-19 está marcando un antes y un después en la historia de la humanidad, existe información que puede brindar un acercamiento a la comprensión del comportamiento y dinámica de la pandemia.",align="justify"),
                 div(),
-                p("Los casos confirmados es una de estas informaciones en el país. Ahora bien, el número de casos positivos absolutos no es necesariamente el mejor indicador del estado actual de expansión de un brote de enfermedad, sobre todo en el caso de una infección que puede tener síntomas leves o incluso personas asintomáticas que pueden infectar a otros."),
-                p("El",strong ("período de duplicación"), "es decir, el tiempo en el cual se duplica la cifra de personas testeadas positivas por una infección, es una medida utilizada a nivel internacional para ofrecer una imagen del desarrollo de una infección en un instante determinado."),
+                p("Los casos confirmados es una de estas informaciones en el país. Ahora bien, el número de casos positivos absolutos no es necesariamente el mejor indicador del estado actual de expansión de un brote de enfermedad, sobre todo en el caso de una infección que puede tener síntomas leves o incluso personas asintomáticas que pueden infectar a otros.",align="justify"),
+                p("El",strong ("período de duplicación"), "es decir, el tiempo en el cual se duplica la cifra de personas testeadas positivas por una infección, es una medida utilizada a nivel internacional para ofrecer una imagen del desarrollo de una infección en un instante determinado.",align="justify"),
                 div(),
-                p("Si el período de duplicación fuese de dos días con cien infectados, quiere decir que pasaría de cien infectados a doscientos en dos días. Este indicador se obtiene: período de duplicación es igual a casos activos divido entre casos nuevos."),
+                p("Si el período de duplicación fuese de dos días con cien infectados, quiere decir que pasaría de cien infectados a doscientos en dos días. Este indicador se obtiene: período de duplicación es igual a casos activos divido entre casos nuevos.",align="justify"),
                 div(),
                 p("La variable de",strong("casos activos"),"es igual al número de casos confirmados del día actual menos las personas fallecidas y recuperadas del día actual. Estos casos activos son en efecto los que representan potenciales fuentes de transmisión viral.",
                   strong("Casos nuevos"), "deriva de la resta entre los casos confirmados del día de anterior menos los casos confirmados del día actual. Se obtiene como Resultado el período de duplicación aproximado (en días).
-                "),
+                ",align="justify"),
                 div(),
-                p("En la gráfica se muestra el período de duplicación al lado de cada barra de los últimos 5 días actualizados."),
+                p("En la gráfica se muestra el período de duplicación al lado de cada barra de los últimos 5 días actualizados.",align="justify"),
                 div(),
                 p("Un período corto de duplicación de 4-5 días, no es lo ideal, dado que podría provocar una saturación en el sistema de salud. Significa que la enfermedad se está propagando muy rápidamente.
                 Por otro lado, si el período supera 20 a 25 días, se considera un período prolongado que representa un crecimiento más lento de aparición de casos infectados, por el hecho que en el mismo período se disminuyen los casos activos reales. Por ello, el Ministro de Salud y el Gobierno actual han insistido en “aplanar la curva”, es decir, ralentizar la tasa de crecimiento de los nuevos casos de infección para conservar la capacidad del sector de salud estable al mantener un período de duplicación prolongado e impactar de manera más sutil sobre las repercusiones económicas y sociales del país.
-                "),
+                ",align="justify"),
                 div(),
-                p("Es importante mencionar que este indicador es meramente teórico y simplificado. No es una predicción perfecta, también por causa de ausencia de suficientes datos epidemiológicos, por el factor de incertidumbre en las personas asintomáticas que no necesariamente están testeadas y cuyo porcentaje real se desconoce. Se trata de un predictor para ofrecer una imagen aproximada de la situación actual que tienen márgenes de error."),
+                p("Es importante mencionar que este indicador es meramente teórico y simplificado. No es una predicción perfecta, también por causa de ausencia de suficientes datos epidemiológicos, por el factor de incertidumbre en las personas asintomáticas que no necesariamente están testeadas y cuyo porcentaje real se desconoce. Se trata de un predictor para ofrecer una imagen aproximada de la situación actual que tienen márgenes de error.",align="justify"),
                 div(),
-                p("Sin embargo, como costarricenses debemos responsabilizarnos y ser conscientes que con el distanciamiento social y acatamiento de las órdenes dadas por las autoridades se puede reducir la tasa de transmisión y aumentar efectivamente el período de duplicación disminuyendo la tasa de infección en la población no infectada."),
+                p("Sin embargo, como costarricenses debemos responsabilizarnos y ser conscientes que con el distanciamiento social y acatamiento de las órdenes dadas por las autoridades se puede reducir la tasa de transmisión y aumentar efectivamente el período de duplicación disminuyendo la tasa de infección en la población no infectada.",align="justify"),
                 div(),
                 p("Léase:"),
                 a("Nunes-Vaz, R. (2020). Visualising the doubling time of COVID-19 allows comparison of the success of containment measures. Global Biosecurity. Obtenido de https://jglobalbiosecurity.com/articles/10.31646/gbio.61/"),
