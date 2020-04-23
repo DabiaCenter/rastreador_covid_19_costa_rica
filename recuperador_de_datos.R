@@ -123,15 +123,15 @@ saveRDS(graf_infectados, file = "datos/graf_infectados.RDS")
 #Grafico cantidad descartados
 graf_descartados <- temp_casos_general %>%
   e_charts(Fecha) %>% 
-  e_line(Descartados) %>%
-  e_area(descartados_por_dia, name = "Descartados por día") %>%
+  e_line(Descartados, name = "Acumulados") %>%
+  e_area(descartados_por_dia, name = "Diarios") %>%
   e_tooltip(
     axisPointer = list(
       type = "cross"
     )
   ) %>%
-  e_mark_point("Descartados", data = list(type = "max")) %>%
-  e_mark_point("Descartados por día", data = list(type = "max")) %>%
+  e_mark_point("Acumulados", data = list(type = "max")) %>%
+  e_mark_point("Diarios", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
   e_title("Descartados") %>% 
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
@@ -292,8 +292,7 @@ ajuste_prediccion <- ajuste_prediccion %>%
   e_scatter(Reales, symbol_size = 7, name = "Confirmados") %>%
   e_legend(right = 0) %>%
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-  e_y_axis(name = "Casos diarios") %>%
-  e_title("Modelo exponencial")
+  e_y_axis(name = "Diarios")
 
 #### almacena el grafico para el output
 
@@ -393,8 +392,7 @@ modelo_gompertz <- predicciones_gompertz %>%
     e_legend(right = 0) %>%
     e_tooltip(trigger = "axis") %>%
     e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-    e_y_axis(name = "Casos acumulados") %>%
-    e_title("Modelo de Gompertz")
+    e_y_axis(name = "Acumulados")
 
 saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
 
@@ -475,9 +473,8 @@ modelo_logistico<-ajuste_logistico_acum%>%
   e_scatter(Confirmados,symbol_size = 7)%>%
   e_legend(right = 0)%>%
   e_tooltip(trigger = "axis")  %>%
-  e_y_axis(name = "Casos acumulados")%>%
-  e_x_axis(name="Fecha",nameLocation="center",nameGap = 40)%>%
-  e_title("Modelo Logístico")
+  e_y_axis(name = "Acumulados")%>%
+  e_x_axis(name="Fecha",nameLocation="center",nameGap = 40)
 
 colnames(ajuste_logistico_acum) <- c("Fecha", "Casos acum. estimados")
 
