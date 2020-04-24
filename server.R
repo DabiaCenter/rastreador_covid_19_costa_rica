@@ -32,7 +32,7 @@ modelo_logistico1<-readRDS("datos/modelo_logistico.RDS")
 predicciones_logistica1<-readRDS("datos/predicciones_logistica.RDS")
 infoextra_exponencial<-readRDS("datos/infoextra_exponencial.RDS")
 infoextra_logistico<-readRDS("datos/infoextra_logistico.RDS")
-
+graf_hosp <- readRDS("datos/graf_hosp.RDS")
 
 ## Codigo debe ir aparte en otro Script
 
@@ -87,15 +87,23 @@ shinyServer(function(input, output, session) {
     })
     
     output$fall <- renderCountup({
-        countup(max(cr_caso_general$Fallecidos), duration = 7)
+        countup(max(cr_caso_general$Fallecidos), duration = 5)
     })
     
     output$desc <- renderCountup({
-        countup(max(cr_caso_general$Descartados), duration = 7)
+        countup(max(cr_caso_general$Descartados), duration = 5)
     })
     
     output$recu <- renderCountup({
-        countup(max(cr_caso_general$Recuperados), duration = 7)
+        countup(max(cr_caso_general$Recuperados), duration = 5)
+    })
+    
+    output$hosp <- renderCountup({
+        countup(max(cr_caso_general$Hospitalizados), duration = 5)
+    })
+    
+    output$ci <- renderCountup({
+        countup(max(cr_caso_general$CI), duration = 5)
     })
     
     #Graficos seccion "General" ----
@@ -139,6 +147,14 @@ shinyServer(function(input, output, session) {
         
         #Grafico comparativo infectados adultos, adultos mayores y menores
         graf_edades
+    })
+    
+    ##### Grafico hospitalizados
+    
+    output$graf_hosp <- renderEcharts4r({
+        
+        graf_hosp
+        
     })
     
     #Seccion modelos de regresion ----

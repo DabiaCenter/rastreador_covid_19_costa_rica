@@ -217,6 +217,23 @@ graf_edades <- dfedad  %>%
 
 saveRDS(graf_edades, file = "datos/graf_edades.RDS")
 
+######### Grafico hospitalizados 
+
+graf_hosp <- temp_casos_general %>%
+  select(Fecha, Hospitalizados, CI) %>%
+  `colnames<-`(c("Fecha", "Hospitalizados", "C.Intensivos")) %>%
+  filter(Fecha > "2020-03-30") %>%
+  e_charts(Fecha) %>%
+  e_bar(Hospitalizados) %>% 
+  e_bar(C.Intensivos) %>%
+  e_tooltip(
+    trigger = "axis"
+  ) %>%
+  e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Cantidad") %>%
+  e_text_style(fontSize = 12)
+
+saveRDS(graf_hosp, file = "datos/graf_hosp.RDS")
 
 ######### seccion de modelo exponencial -----------------
 

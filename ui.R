@@ -162,6 +162,28 @@ shinyUI(
                )
               )
             ),
+          f7Row(
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("hosp")),
+                  br(),
+                  span(tags$small("Hospitalizados"))
+                )
+              )
+            ),
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("ci")),
+                  br(),
+                  span(tags$small("Cuidados Intensivos"))
+                )
+              )
+            )
+          ),
           f7Card(
             title = "Casos confirmados y descartados por COVID-19",
             id = "confirm_descart",
@@ -204,6 +226,11 @@ shinyUI(
                 echarts4rOutput("graf_edades", height = "60vh")
               )
             )
+          ),
+          f7Card(
+            title = "Hospitalizados y Cuidados Intensivos",
+            id = "hospitalizados",
+            echarts4rOutput("graf_hosp", height = "60vh")
           )
         ),
         f7Tab(
