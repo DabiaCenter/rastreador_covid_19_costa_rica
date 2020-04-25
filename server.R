@@ -10,6 +10,7 @@ library(jsonlite)
 library(purrr)
 library(deSolve)
 library(lubridate)
+library(DT)
 
 cr_caso_limpio <- readRDS("datos/cr_caso_limpio.RDS")
 cr_caso_provincia <- readRDS("datos/cr_caso_provincia.RDS")
@@ -24,7 +25,7 @@ graf_estados <- readRDS("datos/graf_estados.RDS")
 graf_genero <- readRDS("datos/graf_genero.RDS")
 graf_infectados <- readRDS("datos/graf_infectados.RDS")
 graf_nacionalidad <- readRDS("datos/graf_nacionalidad.RDS")
-graf_top10 <- readRDS("datos/graf_top10.RDS")
+tabla_top10 <- readRDS("datos/tabla_top10.RDS")
 modelo_gompertz <- readRDS("datos/modelo_gompertz.RDS")
 infoextra_gompertz <- readRDS("datos/infoextra_gompertz.RDS")
 predicciones_gompertz <- readRDS("datos/predicciones_gompertz.RDS")
@@ -125,10 +126,19 @@ shinyServer(function(input, output, session) {
         graf_calendario
     })
     
-    output$graf_top10 <- renderEcharts4r({
+    output$tabla_top10 <- renderDataTable({
         
         #Grafico top 10 cantones
-        graf_top10
+        datatable(tabla_top10, rownames = FALSE, options = list(
+            columnDefs = list(list(className = 'dt-center', targets = 1)),
+            dom = 't',
+            order = FALSE
+        )) %>% formatStyle("Infectados",
+                           fontWeight = 'bold',
+                           background = styleColorBar(tabla_top10$Infectados, 'lightblue'),
+                           backgroundSize = '65% 55%',
+                           backgroundRepeat = 'no-repeat',
+                           backgroundPosition = 'center')
     })
     
     output$graf_genero <- renderEcharts4r({
@@ -171,29 +181,51 @@ shinyServer(function(input, output, session) {
         
     })
     
-    output$estimacion_regresion <- renderTable({
+    output$info_adicional <- renderDataTable({
         if (input$variable == "Exponencial") {
-            pred
+            datatable(infoextra_exponencial, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            )) 
         } else if (input$variable == "Gompertz") {
-            predicciones_gompertz
+            datatable(infoextra_gompertz, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            )) %>% formatPercentage(columns = 3, 2)
+        } else if (input$variable == "Logístico"){
+            datatable(infoextra_logistico, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            )) %>% formatPercentage(columns = 3, 2)
+        }
+        
+    }) 
+    
+    output$estimacion_regresion <- renderDataTable({
+        if (input$variable == "Exponencial") {
+            datatable(pred, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            ))
+        } else if (input$variable == "Gompertz") {
+            datatable(predicciones_gompertz, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            ))
         } else if (input$variable =="Logístico"){
-            predicciones_logistica1
+            datatable(predicciones_logistica1, rownames = FALSE, options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                dom = 't',
+                order = FALSE
+            ))
         }
         
     })
-    
-    
-    output$info_adicional <- renderTable({
-        if (input$variable == "Exponencial") {
-            infoextra_exponencial
-        } else if (input$variable == "Gompertz") {
-            infoextra_gompertz
-        } else if (input$variable =="Logístico"){
-            infoextra_logistico
-        }
-        
-    })
-    
     
     
     #Seccion mapa  ----
@@ -271,7 +303,7 @@ shinyServer(function(input, output, session) {
     })
     
     
-    output$indicadores <- renderTable({
+    output$indicadores <- renderDataTable({
         
         val1 <- as.data.frame(valores())
         
@@ -283,12 +315,12 @@ shinyServer(function(input, output, session) {
             )%>%
             select(Fecha, I)
         
-        ro = input$beta/input$gamma
+        ro = round(input$beta/input$gamma, 2)
         
         infectados = ifelse(
             (1 -(1/ro)) < 0, 
             "No aplica", 
-            ((1 -(1/ro))*100))
+            ((1 -(1/ro))))
         
         pico = ifelse(
             (1 -(1/ro)) < 0, 
@@ -296,13 +328,17 @@ shinyServer(function(input, output, session) {
             as.character(val1[max(val1$I) == val1$I,]$Fecha))
         
         df <- data.frame("Tasa de contacto" = ro, 
-                         "Porcentaje de la poblacion a infectarse (%)" = infectados,
+                         "Porcentaje de la poblacion a infectarse" = infectados,
                          "Pico de la pandemia" = pico)
         
         colnames(df) <- c("Tasa de contacto", 
-                          "Porcentaje de la población a infectarse (%)", 
+                          "Porcentaje de la población a infectarse", 
                           "Pico de la pandemia")
-        df
+        datatable(df, rownames = FALSE, options = list(
+            columnDefs = list(list(className = 'dt-center', targets = "_all")),
+            dom = 't',
+            order = FALSE
+        )) %>% formatPercentage(columns = 2, 2)
     })
     
     #Botón de reseteo
