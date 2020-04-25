@@ -203,9 +203,6 @@ shinyUI(
               f7Slide(
                 echarts4rOutput("graf_calendario", height = "65vh")
               ),
-              f7Slide(
-                echarts4rOutput("graf_calendario", height = "65vh")
-              )
             )
           ),
           f7Card(
