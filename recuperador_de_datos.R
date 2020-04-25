@@ -86,12 +86,6 @@ nacionalidad <- factor(x = c("Extranjeros", "Costarricenses"))
 dfnacionalidad <- data.frame(Nacionalidad = nacionalidad, 
                              Infectados = c(ultima_fila$Extranjeros, ultima_fila$Costarricenses)) 
 
-#Codigo para obtener Recuperados y Fallecimientos
-dfestado <- data.frame(
-  Estado = c("Recuperados", "Fallecidos"),
-  Infectados = c(ultima_fila$Recuperados, ultima_fila$Fallecidos)
-) 
-
 #Codigo para obtener infectados por grupos etarios
 dfedad <- data.frame(
   Grupos = c("Adultos", "Adultos mayores", "Menores"),
@@ -161,41 +155,27 @@ graf_calendario <- temp_casos_general %>%
 
 saveRDS(graf_calendario, file = "datos/graf_calendario.RDS")
 
-#Grafico top 10 cantones
+#Tabla top 10 cantones
 cr_caso_limpio$canton <- as.character(cr_caso_limpio$canton)
 
-graf_top10 <- cr_caso_limpio %>%
+tabla_top10 <- cr_caso_limpio %>%
   group_by(canton) %>%
-  summarize(Casos = max(total))  %>%
+  summarize(Casos = max(total),
+            first(provincia))  %>%
   arrange(desc(Casos)) %>%
-  head(n = 10) %>%
-  arrange(Casos) %>%
-  e_charts(canton) %>%
-  e_bar(Casos) %>%
-  e_tooltip(trigger = "item") %>%
-  e_flip_coords() %>%
-  e_legend(right = 0) %>%
-  e_title("Top 10 de casos por cantones") 
+  head(n = 10)  
 
-saveRDS(graf_top10, file = "datos/graf_top10.RDS")
+colnames(tabla_top10) <- c("Canton", "Infectados", "Provincia")
 
-#Grafico cantidad recuperados y fallecidos
-graf_estados <- dfestado %>% 
-  e_charts(Estado) %>% 
-  e_bar(Infectados) %>% 
-  e_title("Recuperados y fallecidos") %>%
-  e_legend(right = 0) %>%
-  e_flip_coords() %>%
-  e_tooltip()# flip axis
-
-saveRDS(graf_estados, file = "datos/graf_estados.RDS")
+saveRDS(tabla_top10, file = "datos/tabla_top10.RDS")
 
 #Grafico comparativo entre infectados por genero
 graf_genero <- dfgeneros %>% 
   e_charts(Genero) %>% 
-  e_pie(Infectados, radius = c("50%", "70%")) %>% 
+  e_bar(Infectados) %>% 
   e_title("Infectados según género") %>%
-  e_tooltip(axisPointer = list(type = "cross"))
+  e_legend(right = 0) %>%
+  e_tooltip()
 
 saveRDS(graf_genero, file = "datos/graf_genero.RDS")
 
