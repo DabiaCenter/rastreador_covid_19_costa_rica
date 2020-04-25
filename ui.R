@@ -14,6 +14,7 @@ library(deSolve)
 library(lubridate)
 library(countup)
 library(shinyWidgets)
+library(DT)
 
 # La siguiente seccion es una modificación del codigo de John Coene que 
 # puede ser consultado en el siguiente link: https://github.com/JohnCoene/coronavirus
@@ -203,9 +204,14 @@ shinyUI(
                 echarts4rOutput("graf_calendario", height = "65vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_top10", height = "65vh")
+                echarts4rOutput("graf_calendario", height = "65vh")
               )
             )
+          ),
+          f7Card(
+            title = "Tabla infectados por cantón: top 10 ",
+            id = "top10",
+            dataTableOutput("tabla_top10")
           ),
           f7Card(
             title = "Agrupamiento de los infectados por COVID-19",
@@ -358,9 +364,8 @@ shinyUI(
           f7Card(
             title = "Tabla de resumen",
             id = "tabla_resumen",
-            f7BlockHeader(h4(tableOutput("indicadores"))) %>%
-               f7Align("center")
-            ),
+            dataTableOutput("indicadores")
+          ),
           f7Radio("variable", 
                  label = "Seleccione un modelo de regresion:", 
                  choices = c("Exponencial", "Gompertz","Logístico"), 
@@ -421,33 +426,26 @@ shinyUI(
               title="Observaciones generales del modelo Logístico",
               p("Aunque el número de infectados suele crecer de manera exponencial en las pandemias, llega un punto donde dejan de comportarse de esta manera, se comienzan a presentar menos casos que en los días
                 anteriores. En general los modelos exponenciales ajustan bien al inicio de la epidemia, pero los modelos logísticos ajustan mejor al periodo total. En el punto de la curva comienza a cambiar su 
-                forma es donde se comienza a llegar al máximo número de infectados. El modelo actual está limitado por el número de datos y por el comportamiento que han tenido los casos en el país. ",align="justify"),
+                forma es donde se comienza a llegar al máximo número de infectados. El modelo actual está limitado por el número de datos y por el comportamiento que han tenido los casos en el país. "),
               div(),
               p("Referencias"),
               p("https://towardsdatascience.com/modeling-logistic-growth-1367dc971de2")
               
-              ),
+            ),
             title = "Modelo de regresión seleccionado",
             echarts4rOutput("modelo_regresion", height = "65vh")
           ),
-          f7Row(
-            f7Col(
-              f7Card(
-                title = "Predicción próximos 7 días",
-                f7BlockHeader(h4(tableOutput("estimacion_regresion"))) %>%
-                f7Align("center")
-              )
-            ),
-            f7Col(
-              f7Card(
-                title= "Información adicional",
-                f7BlockHeader(f7Align(h4(tableOutput("info_adicional")), "center"))
-              )
-            )
-          )
+          f7Card(
+            title= "Información adicional",
+            dataTableOutput("info_adicional")
           ),
-          f7Tab(
-            tabName = "Período",
+          f7Card(
+            title = "Predicción próximos 7 días",
+            dataTableOutput("estimacion_regresion")
+          )
+        ),
+        f7Tab(
+          tabName = "Período",
             icon = f7Icon("sort_up",old = FALSE),
             active = FALSE,
             swipeable=FALSE,

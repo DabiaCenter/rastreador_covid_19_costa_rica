@@ -86,12 +86,6 @@ nacionalidad <- factor(x = c("Extranjeros", "Costarricenses"))
 dfnacionalidad <- data.frame(Nacionalidad = nacionalidad, 
                              Infectados = c(ultima_fila$Extranjeros, ultima_fila$Costarricenses)) 
 
-#Codigo para obtener Recuperados y Fallecimientos
-dfestado <- data.frame(
-  Estado = c("Recuperados", "Fallecidos"),
-  Infectados = c(ultima_fila$Recuperados, ultima_fila$Fallecidos)
-) 
-
 #Codigo para obtener infectados por grupos etarios
 dfedad <- data.frame(
   Grupos = c("Adultos", "Adultos mayores", "Menores"),
@@ -161,41 +155,27 @@ graf_calendario <- temp_casos_general %>%
 
 saveRDS(graf_calendario, file = "datos/graf_calendario.RDS")
 
-#Grafico top 10 cantones
+#Tabla top 10 cantones
 cr_caso_limpio$canton <- as.character(cr_caso_limpio$canton)
 
-graf_top10 <- cr_caso_limpio %>%
+tabla_top10 <- cr_caso_limpio %>%
   group_by(canton) %>%
-  summarize(Casos = max(total))  %>%
+  summarize(Casos = max(total),
+            first(provincia))  %>%
   arrange(desc(Casos)) %>%
-  head(n = 10) %>%
-  arrange(Casos) %>%
-  e_charts(canton) %>%
-  e_bar(Casos) %>%
-  e_tooltip(trigger = "item") %>%
-  e_flip_coords() %>%
-  e_legend(right = 0) %>%
-  e_title("Top 10 de casos por cantones") 
+  head(n = 10)  
 
-saveRDS(graf_top10, file = "datos/graf_top10.RDS")
+colnames(tabla_top10) <- c("Canton", "Infectados", "Provincia")
 
-#Grafico cantidad recuperados y fallecidos
-graf_estados <- dfestado %>% 
-  e_charts(Estado) %>% 
-  e_bar(Infectados) %>% 
-  e_title("Recuperados y fallecidos") %>%
-  e_legend(right = 0) %>%
-  e_flip_coords() %>%
-  e_tooltip()# flip axis
-
-saveRDS(graf_estados, file = "datos/graf_estados.RDS")
+saveRDS(tabla_top10, file = "datos/tabla_top10.RDS")
 
 #Grafico comparativo entre infectados por genero
 graf_genero <- dfgeneros %>% 
   e_charts(Genero) %>% 
-  e_pie(Infectados, radius = c("50%", "70%")) %>% 
+  e_bar(Infectados) %>% 
   e_title("Infectados según género") %>%
-  e_tooltip(axisPointer = list(type = "cross"))
+  e_legend(right = 0) %>%
+  e_tooltip()
 
 saveRDS(graf_genero, file = "datos/graf_genero.RDS")
 
@@ -235,11 +215,54 @@ graf_hosp <- temp_casos_general %>%
 
 saveRDS(graf_hosp, file = "datos/graf_hosp.RDS")
 
-######### seccion de modelo exponencial -----------------
+######### definición de funciones para la sección de modelos -----------------
 
+#Modelo exponencial
 estimacion<-function(x0,b,t){
   return(x0*(b^t))
 }
+
+#Modelo gompertz
+gompertz_mod = function(params, t) {
+  
+  (params[1] * exp(-params[2] * exp(-params[3] * (t - 1))))
+}
+
+#Definir funcion logistica en R
+logistic_model<-function(params, x){
+  return (params[3]/(1+exp(-(x-params[2])/params[1])))
+}
+
+#Función pronóstico fecha de aplanamiento de la curva
+cuando_acaba <- function(params, t, ultima_fecha, idmodel) {
+  
+  i = 0
+  
+  while (TRUE) {
+    if (idmodel == 2) {
+      model_max <- gompertz_mod(params, t)
+    } else if (idmodel == 3) {
+      model_max <- logistic_model(params, t)
+    }
+    finales   <- tail(model_max,2)
+    ultimo    <- round(finales[2])
+    penultimo <- round(finales[1])
+    
+    if (ultimo == penultimo) {
+      break()
+    }
+    
+    t <- 1:(length(t) + 1)
+    i = i + 1
+  }
+  
+  #return(data.frame(model_max, t))
+  return(ultima_fecha + i)
+  
+}
+
+
+######### seccion de modelo exponencial -----------------
 
 #### crear modelo
 
@@ -263,24 +286,21 @@ names(temp_casos_general)[names(temp_casos_general) %in% c("casosdia","ajuste")]
 
 prediccion <- round(estimacion(x0 = x0,
                                b = b,
-                               t = (nrow(temp_casos_general):(nrow(temp_casos_general) + 6))),0)
+                               t = ((nrow(temp_casos_general) + 1):(nrow(temp_casos_general) + 7))),0)
 
 prediccion <- data.frame(
   "Casos_estimados"= prediccion,
-  time = (nrow(temp_casos_general):(nrow(temp_casos_general) + 6))
+  time = ((nrow(temp_casos_general) + 1):(nrow(temp_casos_general) + 7))
 )
 
 prediccion <- prediccion %>%
-  mutate(
-    Fecha = temp_casos_general[1,"Fecha"] + days(time - 1)
-  ) %>%
+  mutate(Fecha = as.Date(temp_casos_general[1,"Fecha"] + days(time - 1), format = "%Y-%m-%d")) %>%
+  mutate(Fecha = paste(month(Fecha, label = TRUE, abbr = FALSE), day(Fecha))) %>%
   select(
     Fecha, Casos_estimados
   )
 
-colnames(prediccion)<-c("Fecha","Casos diarios estimados")
-
-prediccion$Fecha <- as.character(prediccion$Fecha)
+colnames(prediccion) <- c("Fecha", "Casos diarios estimados")
 
 #### almacena la tabla para el output
 
@@ -296,17 +316,18 @@ colnames(ajuste_prediccion) <- c("time","Estimados")
 #### agregar fechas
 
 ajuste_prediccion <- ajuste_prediccion %>%
-  mutate(Fecha = temp_casos_general[1,"Fecha"] + days(time - 1))
+  mutate(Fecha = as.Date(temp_casos_general[1,"Fecha"] + days(time - 1), format = "%Y-%m-%d")) %>%
+  mutate(Fecha = paste(month(Fecha, label = TRUE, abbr = FALSE), day(Fecha)))
 
 general_temporal <- temp_casos_general %>%
-  mutate(Reales = Casos) #Eliminar esto apenas se haya modificado la base de datos general
+  mutate(Fecha = paste(month(Fecha, label = TRUE, abbr = FALSE), day(Fecha))) #Eliminar esto apenas se haya modificado la base de datos general
 
 ajuste_prediccion <- ajuste_prediccion %>%
   e_charts(Fecha) %>%
   e_line(Estimados) %>%
   e_tooltip(trigger = "axis") %>%
   e_data(general_temporal) %>%
-  e_scatter(Reales, symbol_size = 7, name = "Confirmados") %>%
+  e_scatter(Casos, symbol_size = 7, name = "Confirmados") %>%
   e_legend(right = 0) %>%
   e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
   e_y_axis(name = "Diarios")
@@ -317,45 +338,18 @@ saveRDS(ajuste_prediccion, file = "datos/ajuste_prediccion.RDS")
 
 ### Error medio absoluto exponencial
 
-infoextra_exponencial<-data.frame(
-  "Error medio absoluto" = round(mean(abs(general_temporal$`Casos Reales`- general_temporal$Estimado)),2)
+infoextra_exponencial<-data.frame(c("No aplica"),
+                                  round(mean(abs(general_temporal$`Casos Reales`- general_temporal$Estimado)),2),
+                                  c("No aplica")
 )
 
-colnames(infoextra_exponencial)<-c("Error medio absoluto")
+colnames(infoextra_exponencial) <- c("Pronóstico del aplanamiento de la curva", 
+                                     "Error medio absoluto (MAE)", 
+                                     "Error porcentual medio absoluto (MAPE %)")
 
 saveRDS(infoextra_exponencial,file="datos/infoextra_exponencial.RDS")
 
 ######### seccion de modelo gompertz -----------------
-
-#### Definir de funciones 
-
-gompertz_mod = function(params, t) {
-  
-  (params[1] * exp(-params[2] * exp(-params[3] * (t - 1))))
-}
-
-cuando_acaba <- function(params, t, ultima_fecha) {
-  
-  i = 0
-  
-  while (TRUE) {
-    
-    model_max <- gompertz_mod(param, t)
-    finales   <- tail(model_max,2)
-    ultimo    <- round(finales[2])
-    penultimo <- round(finales[1])
-    
-    if (ultimo == penultimo) {
-      break()
-    }
-    
-    t <- 1:(length(t) + 1)
-    i = i + 1
-  }
-  
-  return(ultima_fecha + i)
-  
-}
 
 #### Cargar y preparar datos 
 
@@ -370,6 +364,7 @@ df <- temp_casos_general %>%
   )
 
 tiempo <- 1:(length(df$Dia) + 7)
+tiemporeal <- 1:length(df$Dia)
 
 ultima_fecha <- tail(temp_casos_general$Fecha, 1)
 
@@ -383,33 +378,30 @@ modelo <- nlsfit(df,
                  )
 )
 
-param <- modelo$Parameters[1:3,1]
+param_gompertz <- modelo$Parameters[1:3,1]
 
 #### Graficar datos
 
-modelado <- gompertz_mod(param, tiempo)
+modelado <- gompertz_mod(param_gompertz, tiempo)
 
 predicciones_gompertz <- temp_casos_general %>%
-    select(Fecha) %>%
-    add_row(Fecha = seq.Date(ultima_fecha + 1, 
-                             length.out = 7, 
-                             by = "day")
-            ) %>%
-    mutate(Estimados = round(modelado, 0),
-           Fecha = factor(Fecha))
-
-general_temporal <- temp_casos_general %>%
-  mutate(Reales = Confirmados) #Eliminar esto apenas se haya modificado la base de datos general
+  select(Fecha) %>%
+  add_row(Fecha = seq.Date(ultima_fecha + 1, 
+                           length.out = 7, 
+                           by = "day")
+  ) %>%
+  mutate(Estimados = round(modelado, 0),
+         Fecha = paste(month(Fecha, label = TRUE, abbr = FALSE), day(Fecha)))
 
 modelo_gompertz <- predicciones_gompertz %>%
-    e_charts(Fecha) %>%
-    e_line(Estimados) %>%
-    e_data(general_temporal) %>%
-    e_scatter(Reales, symbol_size = 7, name = "Confirmados") %>%
-    e_legend(right = 0) %>%
-    e_tooltip(trigger = "axis") %>%
-    e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
-    e_y_axis(name = "Acumulados")
+  e_charts(Fecha) %>%
+  e_line(Estimados) %>%
+  e_data(general_temporal) %>% #Este es un data.frame con los casos reales acum. de covid y se crea en la seccion del modelo exponencial
+  e_scatter(Confirmados, symbol_size = 7) %>%
+  e_legend(right = 0) %>%
+  e_tooltip(trigger = "axis") %>%
+  e_x_axis(name = "Fecha", nameLocation = "center", nameGap = 40) %>%
+  e_y_axis(name = "Acumulados")
 
 saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
 
@@ -417,22 +409,20 @@ saveRDS(modelo_gompertz, file = "datos/modelo_gompertz.RDS")
 
 colnames(predicciones_gompertz) <- c("Fecha", "Casos acum. estimados")
 
-infoextra_gompertz <- data.frame(cuando_acaba(param, tiempo, ultima_fecha),
-                                 modelo$Parameters[7,1])
-
-colnames(infoextra_gompertz) <- c("Fecha final de la epidemia", "Coef. de Determinacion (R-cuadrado)")
-
-# Error medio absoluto gompertz
-
-mae_gompertz<-round(mean(abs(general_temporal$Confirmados-modelado[1:nrow(general_temporal)])),2)
-
-infoextra_gompertz<-infoextra_gompertz%>%
-      mutate(`Coef. de Determinacion (R-cuadrado)`=mae_gompertz)%>%
-      select(`Coef. de Determinacion (R-cuadrado)`)
-
-colnames(infoextra_gompertz) <- c("Error promedio absoluto")
-
 saveRDS(tail(predicciones_gompertz, 7), file = "datos/predicciones_gompertz.RDS")
+
+infoextra_gompertz <- data.frame(as.character(cuando_acaba(param_gompertz, tiemporeal, ultima_fecha, 2)),
+                                 round(mean(abs(
+                                   general_temporal$Confirmados - modelado[1:nrow(general_temporal)]
+                                 )), 2),
+                                 round(mean( ( abs(
+                                   general_temporal$Confirmados - modelado[1:nrow(general_temporal)]
+                                 ) / general_temporal$Confirmados ) ), 4)
+)
+
+colnames(infoextra_gompertz) <- c("Pronóstico del aplanamiento de la curva", 
+                                  "Error medio absoluto (MAE)", 
+                                  "Error porcentual medio absoluto (MAPE %)")
 
 saveRDS(infoextra_gompertz, file = "datos/infoextra_gompertz.RDS")
 
@@ -460,54 +450,62 @@ exit
 a=as.numeric(py$ajuste[[1]][1])
 b=as.numeric(py$ajuste[[1]][2])
 c=as.numeric(py$ajuste[[1]][3])
-#Definir funcion logistica en R
-logistic_model<-function(x,a,b,c){
-  return (c/(1+exp(-(x-b)/a)))
-}
+
+param_logistico <- c(a, b, c)
+
 #Generar ajuste y predicciones del modelo logístico
-ajuste_regresion_logistica<-logistic_model(x=(1:(nrow(temp_casos_general) + 6)),a=a,b=b,c=c)
+ajuste_regresion_logistica <- logistic_model(params = param_logistico, x=(1:(nrow(temp_casos_general) + 7)))
 
 #Generar DataFrame para el grafico de regresion logística
-data_regresion_logistica<-data.frame(
+data_regresion_logistica <- data.frame(
   Estimados = ajuste_regresion_logistica,
-  time = (1:(nrow(temp_casos_general) + 6))
+  time = (1:(nrow(temp_casos_general) + 7))
 )
 #cambiar fecha para gráfico acumulado
-ajuste_logistico_acum<-data_regresion_logistica%>%
+ajuste_logistico_acum <- data_regresion_logistica%>%
   mutate(
-    Fecha = temp_casos_general[1,"Fecha"] + days(time - 1),
+    Fecha = as.Date(temp_casos_general[1,"Fecha"] + days(time - 1), format = "%Y-%m-%d"),
     Estimados = round(Estimados)
   ) %>%
+  mutate(Fecha = paste(month(Fecha, label = TRUE, abbr = FALSE), day(Fecha))) %>%
   select(
     Fecha, Estimados
   )
 
 #gráfico acumulado
-modelo_logistico<-ajuste_logistico_acum%>%
-  e_charts(Fecha)%>%
-  e_line(Estimados)%>%
-  e_data(temp_casos_general)%>%
-  e_scatter(Confirmados,symbol_size = 7)%>%
-  e_legend(right = 0)%>%
+modelo_logistico <- ajuste_logistico_acum %>%
+  e_charts(Fecha) %>%
+  e_line(Estimados) %>%
+  e_data(general_temporal) %>% #Este es un data.frame con los casos reales acum. de covid y se crea en la seccion del modelo exponencial
+  e_scatter(Confirmados, symbol_size = 7) %>%
+  e_legend(right = 0) %>%
   e_tooltip(trigger = "axis")  %>%
-  e_y_axis(name = "Acumulados")%>%
-  e_x_axis(name="Fecha",nameLocation="center",nameGap = 40)
+  e_y_axis(name = "Acumulados") %>%
+  e_x_axis(name = "Fecha",nameLocation="center",nameGap = 40)
 
 colnames(ajuste_logistico_acum) <- c("Fecha", "Casos acum. estimados")
 
-saveRDS(modelo_logistico,file="datos/modelo_logistico.RDS")
+saveRDS(modelo_logistico,file = "datos/modelo_logistico.RDS")
 
-predicciones_logistica<-ajuste_logistico_acum[((nrow(temp_casos_general)+1):(nrow(temp_casos_general) + 6)) ,]
-predicciones_logistica$Fecha <- as.character(predicciones_logistica$Fecha)
+predicciones_logistica <- ajuste_logistico_acum[((nrow(temp_casos_general) + 1):(nrow(temp_casos_general) + 7)) ,]
 
-saveRDS(predicciones_logistica,file="datos/predicciones_logistica.RDS")
+saveRDS(predicciones_logistica, file="datos/predicciones_logistica.RDS")
 
 #Error medio absoluto logístico
-infoextra_logistico<-data.frame(
-  mae = round(mean(abs(general_temporal$Confirmados-ajuste_regresion_logistica[1:nrow(general_temporal)])),2)
-  
+
+infoextra_logistico <- data.frame(as.character(cuando_acaba(param_logistico, tiemporeal, ultima_fecha, idmodel = 3)),
+                                  round(mean(
+                                    abs(general_temporal$Confirmados - ajuste_regresion_logistica[1 : nrow(general_temporal)])),2),
+                                  round(mean( ( 
+                                    abs(general_temporal$Confirmados - ajuste_regresion_logistica[1 : nrow(general_temporal)]
+                                    ) / general_temporal$Confirmados ) 
+                                  ), 4)
 )
-colnames(infoextra_logistico)<-c("Error medio absoluto")
+
+colnames(infoextra_logistico)<-c("Pronóstico del aplanamiento de la curva", 
+                                 "Error medio absoluto (MAE)", 
+                                 "Error porcentual medio absoluto (MAPE %)")
+
 saveRDS(infoextra_logistico,file="datos/infoextra_logistico.RDS")
 
 ######## seccion mapa -----------------
