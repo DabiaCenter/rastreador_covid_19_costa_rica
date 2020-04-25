@@ -99,11 +99,7 @@ graf_infectados <- temp_casos_general %>%
   e_charts(Fecha) %>%
   e_line(Acumulados) %>% 
   e_area(Diarios) %>%
-  e_tooltip(
-    axisPointer = list(
-      type = "cross"
-    )
-  ) %>%
+  e_tooltip(trigger = "axis") %>%
   e_mark_point("Acumulados", data = list(type = "max")) %>%
   e_mark_point("Diarios", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
@@ -119,11 +115,7 @@ graf_descartados <- temp_casos_general %>%
   e_charts(Fecha) %>% 
   e_line(Descartados, name = "Acumulados") %>%
   e_area(descartados_por_dia, name = "Diarios") %>%
-  e_tooltip(
-    axisPointer = list(
-      type = "cross"
-    )
-  ) %>%
+  e_tooltip(trigger = "axis") %>%
   e_mark_point("Acumulados", data = list(type = "max")) %>%
   e_mark_point("Diarios", data = list(type = "max")) %>%
   e_legend(right = 0) %>%
