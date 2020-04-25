@@ -14,6 +14,7 @@ library(deSolve)
 library(lubridate)
 library(countup)
 library(shinyWidgets)
+library(DT)
 
 # La siguiente seccion es una modificación del codigo de John Coene que 
 # puede ser consultado en el siguiente link: https://github.com/JohnCoene/coronavirus
@@ -203,9 +204,14 @@ shinyUI(
                 echarts4rOutput("graf_calendario", height = "65vh")
               ),
               f7Slide(
-                echarts4rOutput("graf_top10", height = "65vh")
+                echarts4rOutput("graf_calendario", height = "65vh")
               )
             )
+          ),
+          f7Card(
+            title = "Tabla infectados por cantón: top 10 ",
+            id = "top10",
+            dataTableOutput("tabla_top10")
           ),
           f7Card(
             title = "Agrupamiento de los infectados por COVID-19",
@@ -358,9 +364,8 @@ shinyUI(
           f7Card(
             title = "Tabla de resumen",
             id = "tabla_resumen",
-            f7BlockHeader(h4(tableOutput("indicadores"))) %>%
-               f7Align("center")
-            ),
+            dataTableOutput("indicadores")
+          ),
           f7Radio("variable", 
                  label = "Seleccione un modelo de regresion:", 
                  choices = c("Exponencial", "Gompertz","Logístico"), 
