@@ -92,19 +92,23 @@ shinyServer(function(input, output, session) {
     })
     
     output$desc <- renderCountup({
-        countup(max(cr_caso_general$Descartados), duration = 5)
+        countup(max(cr_caso_general$Descartados), 
+                duration = 5)
     })
     
     output$recu <- renderCountup({
-        countup(max(cr_caso_general$Recuperados), duration = 5)
+        countup(max(cr_caso_general$Recuperados), 
+                duration = 5)
     })
     
     output$hosp <- renderCountup({
-        countup(max(cr_caso_general$Hospitalizados), duration = 5)
+        countup(cr_caso_general$Hospitalizados[nrow(cr_caso_general)],
+                duration = 5)
     })
     
     output$ci <- renderCountup({
-        countup(max(cr_caso_general$CI), duration = 5)
+        countup(cr_caso_general$CI[nrow(cr_caso_general)], 
+                duration = 5)
     })
     
     #Graficos seccion "General" ----
@@ -264,9 +268,20 @@ shinyServer(function(input, output, session) {
                          max = max(cn$total),
                          inRange = list(color = c('yellow','orange', 'orangered', 'red'))) %>%
             e_tooltip() %>%
-            e_timeline_opts(axis_type = "category",
-                            playInterval = 1000, currentIndex = length(unique(cr_caso_provincia$fecha))-1) %>%
-            e_show_loading(text = "Cargando...",color = "#000000", mask_color = '#ffffff')
+            e_timeline_opts(axis_type = "time",
+                            playInterval = 1000, 
+                            currentIndex = length(unique(cr_caso_provincia$fecha))-1,
+                            symbolSize = 4, 
+                            label = list(
+                                show = FALSE
+                            ),
+                            checkpointStyle = list(
+                                symbol = "pin",
+                                symbolSize = 25
+                            )) %>%
+            e_show_loading(text = "Cargando...",
+                           color = "#000000", 
+                           mask_color = '#ffffff')
         
     })
     
