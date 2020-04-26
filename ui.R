@@ -68,7 +68,9 @@ act <- max(cr_caso_general$Fecha)
 loader <- tagList(
   waiter::spin_half(),
   br(),
-  h3("Cargando datos...")
+  h3("Preparando datos actualizados"),
+  h3("y las mejores visualizaciones"),
+  h3("para su experiencia...")
 )
 
 shinyUI(
