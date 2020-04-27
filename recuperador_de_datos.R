@@ -519,7 +519,7 @@ prov_map <- cr_caso_provincia %>%
                inRange = list(color = c('yellow','orange', 'orangered', 'red')),
                show = TRUE) %>%
   e_tooltip() %>%
-  e_timeline_opts(axis_type = "time",
+  e_timeline_opts(axis_type = "category",
                   playInterval = 1000, 
                   currentIndex = length(unique(cr_caso_provincia$fecha))-1,
                   symbolSize = 4, 

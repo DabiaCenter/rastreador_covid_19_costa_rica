@@ -261,6 +261,7 @@ shinyServer(function(input, output, session) {
             group_by(fecha)
         
         cn %>%
+            group_by(fecha) %>%
             e_charts(canton, timeline = TRUE) %>%
             e_map_register("cr_canton", geojson) %>%
             e_map(total, map = "cr_canton", name = "Confirmados") %>%
@@ -268,7 +269,7 @@ shinyServer(function(input, output, session) {
                          max = max(cn$total),
                          inRange = list(color = c('yellow','orange', 'orangered', 'red'))) %>%
             e_tooltip() %>%
-            e_timeline_opts(axis_type = "time",
+            e_timeline_opts(axis_type = "category",
                             playInterval = 1000, 
                             currentIndex = length(unique(cr_caso_provincia$fecha))-1,
                             symbolSize = 4, 
