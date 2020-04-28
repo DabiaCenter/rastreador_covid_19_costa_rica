@@ -91,6 +91,11 @@ shinyServer(function(input, output, session) {
         countup(max(cr_caso_general$Fallecidos), duration = 5)
     })
     
+    output$new <- renderCountup({
+        countup(cr_caso_general$Confirmados[nrow(cr_caso_general)] - cr_caso_general$Confirmados[nrow(cr_caso_general)-1] ,
+                duration = 5)
+    })
+    
     output$desc <- renderCountup({
         countup(max(cr_caso_general$Descartados), 
                 duration = 5)
