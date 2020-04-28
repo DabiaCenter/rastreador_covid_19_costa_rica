@@ -141,7 +141,17 @@ shinyUI(
                   span(tags$small("Fallecidos"))
                 )
               )
-            )
+            ),
+            f7Col(
+              f7Card(
+                h2(
+                  align = "center",
+                  tags$span(countup::countupOutput("new")),
+                  br(),
+                  span(tags$small("Nuevos"))
+                )
+              )
+            ),
           ),
           f7Row(
             f7Col(
