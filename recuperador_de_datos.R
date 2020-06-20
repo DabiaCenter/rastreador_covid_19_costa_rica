@@ -364,9 +364,9 @@ ultima_fecha <- tail(temp_casos_general$Fecha, 1)
 
 modelo <- nlsfit(df, 
                  model = 10,
-                 start = c(a = 761.049823156006, 
-                           b = 6.63469882635722, 
-                           c = 0.08376468439801
+                 start = c(a = 800, 
+                           b = 6, 
+                           c = 0.004
                  )
 )
 
