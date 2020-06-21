@@ -434,7 +434,7 @@ p0=np.random.exponential(size=3)
 bounds=(0,[100000.,10000.,4900000.])
 
 #Estimar el valor de los parametros a partir de los datos originales
-ajuste = optim.curve_fit(logistic_model,r.dias,r.confirmados,p0=p0,bounds=bounds)
+ajuste = optim.curve_fit(logistic_model,r.dias,r.confirmados,p0=p0,bounds=bounds, maxfev = 1000)
 #salir de python
 exit
 
